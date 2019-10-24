@@ -1,0 +1,27 @@
+//Spin Dressing parameter file Template
+
+simType = 1;
+numerical = 5;
+maxError = 1.0E-9;
+maxAngle = 2.8282;
+seed = 2785597483;
+runTime = 0.009;
+nEntries = 1;
+nBins = 200;
+randBins = 0;
+spinSet = 0.613228527729, 0.141836522676, 0.777067032897;  //He
+geometry = 1;   
+boxLow = -0.038, -.051, -.20;
+boxHigh = 0.038,.051, .20;
+
+diffusion = 0;
+gravity = 0;
+velocity = 5;
+temperature = 0.45;
+vdistrexpo = 2;
+
+B0 = 30e-07, 0, 0;
+E0 = 0, 0, 0;
+
+SpinDressing=  1  ,  6000.5 , -1.570796,  0  ,  0 ,  0 , 0 , 0;
+BzAdd = "0.0000387540238";

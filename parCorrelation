@@ -1,0 +1,92 @@
+//Spin Dressing parameter file. !!!NOTE!!! need change edm in run_sims_multi.py 
+edm = 0;
+numerical = 5;
+maxError = 1.0E-10;
+maxAngle = 2.8282;
+seed = 85678332;
+runTime = 0.1;
+nEntries = 1000;  //Entries are the number of particles run
+nBins = 1000;      //Bins are the number of time points saved. 
+randBins = 0;
+spinSet = 0, 0.6967067093, 0.7173560909;
+//spinSet = 0, 0.921060994, 0.3894183423; //n, phi = 0, +- s_z
+//spinSet = 0, 0.921060994, -0.3894183423; //He
+//spinSet = 0, -0.3894183423, 0.921060994; //n, phi = 0, +- s_y
+//spinSet = 0, 0.3894183423, 0.921060994; //He
+//spinSet = 0.6082,   -0.3846,    0.6944;
+//spinSet = -3.7036e-01,  -1.2034e-01,  -9.2106e-01; //n, 7th from 1st ang search
+//spinSet = 3.7036e-01,  1.2034e-01,  -9.2106e-01; //He,
+//spinSet = 0.5860,    0.2033,   -0.7844;
+//spinSet = 0.5964,    0.1809,    0.7820;
+
+//Geometry 
+//radius=0.0254;
+geometry = 1;   //1 is 3D box,  //4 is 3D cylinder, must include radius, length is the 3rd variable of the boxLow and boxHigh field. 
+boxLow = -0.038, -.051, -.20;
+boxHigh = 0.038,.051, .20;
+//Trajectory stuff
+diffusion = 0;          //!!!!!!!!!!!DIFFUSION!!!!!!!!!!!!!!
+gravity = 0;
+velocity = 5;
+temperature = 0.300;
+vdistrexpo = 2;
+
+//Fields !!!NOTE!!! need to change E field in run_sims_multi.py
+B0 = 3e-6, 0, 0;
+E0 = 0, 0, 0;
+UniformG = 0, 0, 0,	 0, 0, 0, 	0, 0, 0;
+
+//****************** SPIN DRESSING PARAMETERS ***************************/
+///SpinDressing[0]= 0 NO Spin Dressing. or comment it out. BxAdd, etc will be constant in time, either way. 
+//SpinDressing[0] = 1, Spin Dressing without Modulation. SpinDressing[1]=angular frequency of SD field, SpinDressing[2]=phi
+//SpinDressing[0] = 2,  with oscillating frequency Modulation. [1]=wrf, [2]=phi, [3]=fm, [4]=wrf_amp
+//SpinDressing[0] = 3,  with oscillating Bmag Modulation. [1]=wrf, [2]=phi, [3]=fm, [4]=amp
+//SpinDressing[0] = 4,  with pulsed Bmag Modulation.  [1]=wrf, [2]=phi, [3]=fm, [4]=scale1, [5]=scale2, [6]=deltat
+//SpinDressing[0] = 5,  with pulsed frequency modulation. [1]=wrf, [2]=phi, [3]=fm, [4]=dw1, [5]=dw2, [6]=deltat1, [7]=deltat2
+//SpinDressing[0] = 6,  with oscillating frequency Modulation by a function which is coded into BDressing.c [1]=wrf, [2]=phi, [3]=fm, [4]=wrf_amp, [5]=scale, [6]=n
+//            [0]       [1]      [2]     [3]   	[4]     	[5]    		[6] 		[7]
+//SpinDressing=  1  ,  3000 ,  0, 	 1  ,  1255.05106, 0.73,	51, 1.570796327;
+//BzAdd = "1.9102418e-5";
+
+//simType: 0 is neutron, 1 is helium-3 
+simType = 1;
+
+SpinDressing= 0 , 6000, 0, 	1 , 2542.3354, 0.726, 51, 1.570796327;
+//BzAdd = "3.8750592e-05";
+//BzAdd = "3.8750592e-5";
+//SpinDressing=  1  ,  6000 ,  0, 	 1  ,  2542.3354, 0.726,   51, 1.570796327;
+//SpinDressing=  1  ,  1800 ,  0, 	 1  ,  730.01295, 0.7395,   51, 1.570796327;
+//BzAdd = "1.10631580e-5";
+//SpinDressing=  1  ,  2100 ,  0, 	 1  ,  862.25067, 0.7357,   51, 1.570796327;
+//BzAdd = "1.31017478e-5";
+//SpinDressing=  1  ,  10000 ,  0, 	 1  ,  4231.97665, 0.726,   51, 1.570796327;
+//BzAdd = "6.477662320e-5";
+//BzAdd = "1.167322440e-4";
+//SpinDressing=  1  ,  30000 ,  0, 	 1  ,  12711.5053, 0.7256,   51, 1.570796327;
+//BzAdd = "1.946176552e-4";
+//SpinDressing=  1  ,  2400 ,  0, 	 1  ,  994.3641, 0.733,   51, 1.570796327;
+//BzAdd = "1.51160267e-5";
+//SpinDressing=  1  ,  4200 ,  0, 	 1  ,  1766.76950, 0.728,	51, 1.570796327;
+//BzAdd = "2.69935194e-5";
+//SpinDressing=  2  ,  9000 , 	  0, 	 1  ,  489.8, -2.3622341e4,	0.05245, 0.05065;
+//BzAdd = "5.818e-5";
+//SpinDressing=  1  ,  100000 ,  0, 	 1  ,  4231.97665, 0.726,   51, 1.570796327;
+//BzAdd = "6.488345280e-4";
+// If SpinDressing parameter is defined then
+// BxAdd,ByAdd,BzAdd defines the shape of the Spin Dressing field. 
+// Otherwise BxAdd, etc are DC fields. 
+// Defining SpinDressing does not alter Constant Fields (B0) or Uniform Field Gradients or Quadratics. 
+// phi must be between 0 and 2*PI
+
+// initial pulse defines the shape of the pulse used to perform the pi/2 twist. Initial pulse will only work when spin dressing is on
+//InitialPulse[0] = No pulse
+//InitialPulse[1] = Oscillating pulse of single frequency. [1] = w_p (pulse freq), [2] = Bscale (factor by which BzAdd is modified), [3] = T_p (length of pulse), [4] = phi_p (phase of pi/2 pulse at t = 0 for a cosine) [5] = Tpause (time between pulse and dressing field starting) 
+//InitialPulse[1] = Oscillating pulse of single frequency. [1] = width, [2] = Bscale (factor by which BzAdd is modified), [3] = T_p (length of pulse), [4] = T_crop (cuts this amount of time off end of pulse), [5] = T_pause 
+//InitialPulse= 1, 578.92658, 8.30955047e-3, 0.074458, 0, 0.04808;
+//InitialPulse= 1, 578.92658, 8.30955047e-3, 0.067979, -1.570796327, 0.05477;
+//InitialPulse= 1, 580.5585, 0.01037403506, 0.08088853576, -1.570796327, 0;
+//InitialPulse= 1, 549.7308437, 0.023844797, 0.09218738929, -1.570796327, 0;
+//InitialPulse= 2, 100, 32e-3, 0.3, 0, 0; //w_mean
+//InitialPulse= 2, 8, 1.9745e-3, 2.8, 0.0, 0.0237, 1.053845;  //double sech
+//  ^^^^^^^^^^^^^^^^^^^
+//DONT FORGET TO PUT SPIN TO 1, 0, 0
