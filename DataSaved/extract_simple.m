@@ -1,8 +1,7 @@
 
-
-Bin = 1001;
-Event = 100;
- startnum=0;
+Bin = 10001;
+Event = 6;
+ startnum=60000;%50050;
  runs=1;
  Sx=zeros(runs,Bin);
 Sy=zeros(runs,Bin);
@@ -31,22 +30,31 @@ datafile = strcat('/data1/cmswank/spin-sim-xliu/ExtractData/SpinDressingCrossTer
     vz = squeeze(B(9,:,1:Event));
     tlarge = squeeze(B(10,:,1:Event)); 
     
-   if Event>1
+   %if Event>1
        t = squeeze(tlarge(:,1));
-    Sx(i,:)=mean(sx1,2);
-    Sy(i,:)=mean(sy1,2);
-    Sz(i,:)=mean(sz1,2);
-   else
+    %Sx(i,:)=mean(sx1,2);
+    %Sy(i,:)=mean(sy1,2);
+    %Sz(i,:)=mean(sz1,2);
+   %else
        t=tlarge;
        Sx=sx1;
        Sy=sy1;
        Sz=sz1;
-   end
-   phaseData=acos(sx1.*mean(sx1,2)+sy1.*mean(sy1,2).*sz1.*mean(sz1,2));
-   phaseNoise=std(acos(sx1.*mean(sx1,2)+sy1.*mean(sy1,2).*sz1.*mean(sz1,2))');
+   %end
+   he3ind=2:2:Event;
+   nind=1:2:Event-1;
+   phaseData=acos(sx1(:,nind).*sx1(:,he3ind)+sy1(:,nind).*sy1(:,he3ind).*sz1(:,nind).*sz1(:,he3ind));
+   %phaseNoise=std(acos(sx1.*mean(sx1,2)+sy1.*mean(sy1,2).*sz1.*mean(sz1,2))');
     %eval(['Sx',num2str(runnum),'=mean(sx1,2);']);
     %eval(['Sy',num2str(runnum),'=mean(sy1,2);']);
     %eval(['Sz',num2str(runnum),'=mean(sz1,2);']);
   
     %eval(['Signal',num2str(runnum),'=sqrt(Sx',num2str(runnum),'.^2+Sy',num2str(runnum),'.^2+Sz',num2str(runnum),'.^2);']);
+
+%eval(['Sx',num2str(i),'=Sx;']);
+%eval(['Sy',num2str(i),'=Sy;']);
+%eval(['Sz',num2str(i),'=Sz;']);
+
 end
+
+

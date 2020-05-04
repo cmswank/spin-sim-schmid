@@ -31,6 +31,7 @@ cmsB1PulseInterp::cmsB1PulseInterp(double star[1],double ste[1], int N[3],int fi
 		//interpdata
 		//this->rootRand= new TRandom3(flat_seed);
 		std::string tempfilename = "/data1/cmswank/spin-sim-xliu/BField/B1Pulse" + std::to_string(filenum)+".dat";
+		//std::cout<<filenum<<std::endl;
 		std::ifstream B1file (tempfilename, std::ios::binary | std::ios::in);
 
 

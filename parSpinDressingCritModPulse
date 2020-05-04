@@ -1,14 +1,14 @@
 //Spin Dressing parameter file. !!!NOTE!!! need change edm in run_sims_multi.py 
-edm = 0;
+edm = 1e-23;
 numerical = 5;
 maxError = 1E-11;
 maxAngle = 2.8282;
 seed = 678742112;//865786758;//
-runTime = 10;
+runTime = 1;
 nEntries= 1;  //Entries are the number of particles run
-nBins = 20000;      //Bins are the time points run. 
+nBins = 10000;      //Bins are the time points run. 
 randBins = 0;
-spinSet = 0, 0, 1;
+spinSet = 0, 0, 1; //0.707106781186548, 0.707106781186548;
 //spinSet = 0, 0.921060994, -0.3894183423; //He
 //spinSet = 0, -0.3894183423, 0.921060994; //n, phi = 0, +- s_y
 //spinSet = 0, 0.3894183423, 0.921060994; //He
@@ -19,13 +19,13 @@ spinSet = 0, 0, 1;
 //spinSet = 0.5964,    0.1809,    0.7820;
 
 //Geometry 
-//radius=0.0254;
+//radius=0.25;  //Gravity is in y in 3d box, gravity is in z in 3D cylinder, 3d cylinder axis is in z. 
 geometry = 1;   //1 is 3D box,  //4 is 3D cylinder, must include radius, length is the 3rd variable of the boxLow and boxHigh field. 
-boxLow = -0.038, -.051, -.20;
-boxHigh = 0.038,.051, .20;
+boxLow = -0.038, -.051, -.05;
+boxHigh = 0.038,.051, .05;
 //Trajectory stuff
 diffusion = 0;//0.00; //!!!!!!!!!!!DIFFUSION!!!!!!!!!!!!!!
-gravity = 0;
+gravity = 0;    //Gravity is in y in 3d box, gravity is in z in 3D cylinder, 3d cylinder axis is in z. 
 velocity = 5;
 temperature = 0.45;
 vdistrexpo = 2;
@@ -33,7 +33,7 @@ vdistrexpo = 2;
 //Fields !!!NOTE!!! need to change E field in run_sims_multi.py
 ////LINES: B0-35.  E0-36. UniformG-37. 
 B0 = 3e-06, 0, 0;
-E0 = 0, 0, 0;
+E0 = 75000000.0, 0, 0;
 UniformG = 0, 0, 0, 0, 0, 0, 0, 0, 0;
 //****************** SPIN DRESSING PARAMETERS ***************************/
 ///SpinDressing[0]= 0 NO Spin Dressing. or comment it out. BxAdd, etc will be constant in time, either way. 
@@ -41,15 +41,15 @@ UniformG = 0, 0, 0, 0, 0, 0, 0, 0, 0;
 //SpinDressing[0] = 2,  with oscillating frequency Modulation. [1]=wrf, [2]=phi, [3]=fm, [4]=wrf_amp
 //SpinDressing[0] = 3,  with oscillating Bmag Modulation. [1]=wrf, [2]=phi, [3]=fm, [4]=amp
 //SpinDressing[0] = 4,  with pulsed Bmag Modulation.  [1]=wrf, [2]=phi, [3]=fm, [4]=scale1, [5]=scale2, [6]=deltat
-//SpinDressing[0] = 5,  with critical frequency modulation. [1]=wrf, [2]=phi, [3]=fm [rad/s], [4]=w_amp[rad/s], [5]=fm_phi, [6]=unused, [7]=unused
-//SpinDressing[0] = 6,  with oscillating frequency Modulation by a function which is coded into BDressing.c [1]=wrf, [2]=phi, [3]=fm, [4]=wrf_amp, [5]=scale, [6]=n
+//SpinDressing[0] = 5,  with critical frequency modulation (prevously hard pulse modlulation (didn't work)). [1]=wrf, [2]=phi, [3]=fm [rad/s], [4]=w_amp[rad/s], [5]=fm_phi, [6]=unused, [7]=unused
+//SpinDressing[0] = 6,  with soft pulsed frequency Modulation by a function which is coded into BDressing.c [1]=wrf, [2]=phi, [3]=fm, [4]=wrf_amp, [5]=scale, [6]=n
 //            [0]       [1]      [2]     [3]   	[4]     	[5]    		[6] 		[7]
 //SpinDressing=  1  ,  3000 ,  0, 	 1  ,  1255.05106, 0.73,	51, 1.570796327;
 //LINES simType-50, SpinDressing-50,Bzadd-51
 
-simType = 1;
-SpinDressing= 5, 6283.18530718, 1.57079632679, 753.982236862, 5384.88986487, 0, 51, 1.570796327;
-BzAdd = "4.52094061954e-05";//"3.8750592e-5+3.8750592e-8*z";//old value needed for pulse (easier for me) ROBUST DRESSING VALUE:"4.52094061954e-05";
+simType = 0;
+SpinDressing= 1, 6283.18530718, 1.57079632679, 753.982236862, 5277.87565803, 0, 51, 1.570796327;
+BzAdd = "4.52094061954e-05";
 
 //simType = 0;
 //SpinDressing= 6 , 6000, 0, 	1 , 2542.3354, 0.726, 51, 1.570796327;
@@ -93,8 +93,8 @@ BzAdd = "4.52094061954e-05";//"3.8750592e-5+3.8750592e-8*z";//old value needed f
 //InitialPulse[0] = 3, Sech with noise. [1] = width, [2] = Bscale (factor by which BzAdd is modified), [3] = T_p (length of pulse), 
 //[4] = T_crop (cuts this amount of time off end of pulse), [5] = T_pause, [6]=rscale (scale between n-he3 resonance,), 
 //[7]= seed (rng noise seed), [8] noise std (white for now), [9] start time of interpolation, [10] step time between data [11] number of data points, [12] must be 1  [13] must be 1. 
-//           [0]  [1]  [2]          [3]  [4]  [5]   [6]   [7]  [8] [9]  [10]       [11]  [12] [13]
-InitialPulse= 6, 2, 0.0153505815, 0.5, 0.0, 0.6,  50000,  82,  0, 0.0, 2e-05, 50000, 0.0, 1e-05;
+//           [0] [1]  [2]      [3]   [4]  [5]   [6]   [7]   [8]  [9]  [10]    [11]  [12] [13]
+//InitialPulse= 5, 0, 0.0847, 0.00258, 0.0, 1.0,  2500, 205,  0.0, 0.0, 2e-4, 50000, 0.0, 1.001e-05;
 //RobustDressing B1
 //InitialPulse= ,  8, 0.0961, 0.00983, 0.0, 1.0,  2500, 81959,  1.0e-3, 0.0, 2e-4, 50000, 0.0, 1.001e-05;
 //DONT FORGET TO PUT SPIN TO 1, 0, 0

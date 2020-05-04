@@ -13,7 +13,7 @@
 double BDressingFactor::getFactor(BFieldVars &vars) {
 	///starting to adsfget spagetti! too many cooks...
   //Initial pulse stuff was Ezra webb. C swank did the dressing, and noise
-
+  
   if (pulse == 1) {
     double time = vars.t;
     if (time < T_p) {
@@ -121,6 +121,7 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
     }
 
     else if (pulse == 5) {
+      
     //Double Pulses! Attempting to use robust dressing to lock phases together in B1 pulse. 
       ///putting it so after the pulse it stops dressing. 
     double time = vars.t;
@@ -148,14 +149,23 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
       
       //return Bscale*(std::real(rscale*std::exp(i*w_n*t)*std::pow(std::cosh(beta*t),expo)+1/rscale*std::exp(i*w_He*t)*std::pow(std::cosh(beta*t),expo)+interpnoise->interp1D(interptime)));
       if(time<T_p)
-        return Bscale*(b1Pulse->interp1D(interptime))+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
-      else
+              {
+                //std::cout<<"hello"<<std::endl;
+              //std::cout<<"Bscale:  "<<Bscale<<" B1 pulse interp: "<<b1Pulse->interp1D(interptime)<<" noise "<<Bscale*interpnoise->interp1D(interptime)<<std::endl;
+              //std::cout<<Bscale*(b1Pulse->interp1D(interptime))+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime)<<std::endl;//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+        return cos(get_phase(vars.t))+Bscale*(b1Pulse->interp1D(interptime));//+interpnoise->interp1D(interptime));//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+        }
+      else{
+        //std::cout<<"goodbye"<<std::endl;
         return 0.0;//+interpnoise->interp1D(interptime));
+        
+        }
       }
 
       else if (pulse == 6) {
     //Double Pulses! Attempting to use robust dressing to lock phases together in B1 pulse. 
-      ///putting it so after the pulse it stops dressing. 
+      ///putting it so after the pulse it stops dressing.
+
     double time = vars.t;
     double interptime[1]={time};
       /*double mu  = 5;
@@ -180,8 +190,10 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
       //std::cout<<" "<<this->b1Pulse->interp1D(interptime)<<" ";
       
       //return Bscale*(std::real(rscale*std::exp(i*w_n*t)*std::pow(std::cosh(beta*t),expo)+1/rscale*std::exp(i*w_He*t)*std::pow(std::cosh(beta*t),expo)+interpnoise->interp1D(interptime)));
+      
       if(time<T_p){
-        //std::cout<<b1Pulse->interp1D(interptime)<<"   ";
+        //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
+         //std::cout<<time<<std::endl;
         return b1Pulse->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
       }
       else
@@ -297,7 +309,7 @@ double BDressingCosBModFactor::getFactor(BFieldVars &vars) {
 }
 
 /**
- * Implementation of getFactor
+ * Implementation of getFactor SD type 4? I'm going to turn this into robust dressing as well. 
  */
 double BDressingPulsedBModFactor::getFactor(BFieldVars &vars) {
   int halves = floor(vars.t * 2 * fm);
@@ -325,9 +337,9 @@ double BDressingPulsedFreqModFactor::get_phase(double time) {
   //dw1 is amplitude of critical mod, fm is frequeny of critical modulation.
   //dw2 is phase of critrical modulation. phi is phase of dressing?
   //wrf is the usual omega rf. 
-  
+  //old robust dressing doesn't really work 
   return dw1/fm*(1.0-cos(fm*time+dw2))+wrf*time+phi; 
-
+  ///return wrf*time+phi;
 
 //Old stuff (pulsed freq mod was shown not to converge correctly, please use funtion pulsed freq mod. 
 /*  int halves = floor(time*2.0*fm);

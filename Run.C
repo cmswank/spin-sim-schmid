@@ -175,18 +175,22 @@ Neutron *ParticleFactory::newParticle() {
   newPosition();
   newVelocity();
   newSpin();
-
+   
   // Create the particle
   Neutron *p;
   if (parameters.simType == 1) {
+    
     Helium3 *h = new Helium3(temp_pos, temp_vel, temp_spin);
     if (vDistribution[0]) {
       h->vDistribution = vDistribution[0];
     }
     p = (Neutron*)h;
+    p->SetGamma(HE3_GAMMA);
   }
   else {
+    
     p = new Neutron(temp_pos, temp_vel, temp_spin);
+    p->SetGamma(NEUTRON_GAMMA);
   }
   if (parameters.simGamma != 0) {
     p->SetGamma(parameters.simGamma);
@@ -224,7 +228,8 @@ Double_t *ParticleFactory::newPosition() {
  */
 Double_t *ParticleFactory::newVelocity() {
   Double_t speed = parameters.speed;
-  if (vDistribution[0])
+  //std::cout<<speed;
+  if (vDistribution[0] && parameters.simType==1)
     speed = vDistribution[0]->GetRandom();
   else if (parameters.vdistrexpo >= 0.) {
     // pick from values distributed as f(v) ~ v^expo
@@ -244,6 +249,7 @@ Double_t *ParticleFactory::newVelocity() {
       Vector::Normalize(temp_vel, speed);
     }
   }
+  
   return temp_vel;
 }
 
@@ -724,7 +730,8 @@ if (parameters.Interpparam[0]){
     this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
-    //double temptesttime[1]={0.25};
+    //double temptesttime[1]={0.};
+    
     //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
     //double testtesttime=0.0001;
     //this->field->BSDF->interpnoise->testtest=testtesttime;
@@ -903,6 +910,8 @@ void Run::SaveNeutronRecord(Neutron *n1, int i) {
 Int_t Run::runNeutron() {
 
   Neutron *n1 = factory->newParticle();
+  //Double_t gam=n1->GetGamma();
+  //std::cout<<gam<<" ";
 
   Double_t nextTime;
   Int_t nBounces = 0;
@@ -972,6 +981,11 @@ Int_t Run::runNeutron() {
     while (n1->GetLifetime() < nextTime) {
       Double_t delta_t = nextTime - n1->GetLifetime();
       Double_t advance_ret = n1->Advance(delta_t, advance_mode);
+      //gam=n1->GetGamma();
+      
+      //if (gam<-193247173) std::cout<<gam<<"  ";
+      
+
       if (advance_ret < 0) {
 	cout << "Error: Advance returned time < 0" << endl;
 	delete n1;
@@ -1162,3 +1176,477 @@ void set_signal_handles() {
   signal(SIGINT, signal_handle_int);
   signal(SIGTERM, signal_handle_int);
 }
+
+
+
+//CS Addition ReloadParameters. 
+
+void Run::ReloadParameters() {
+
+  //neutronData.Initialize(parameters.nBins + 1);
+
+  //if (!dataTree) {
+  //  dataTree = createTree(name);
+  //}
+  //std::cout<<"Reloding Parameters"<<std::endl;
+  Double_t gamma = 0;
+  switch (parameters.simType) {
+  case 0:
+    //cout << "Neutron Simulation" << endl;
+    gamma = NEUTRON_GAMMA;
+    //std::cout<<"neutron gamma: "<<gamma<<std::endl;
+    break;
+  case 1:
+   // cout << "He3 Simulation" << endl;
+    gamma = HE3_GAMMA;
+    //std::cout<<"3He gamma: "<<gamma<<std::endl;
+    useQuiteBoltzmannDistribution(parameters.temperature);
+    break;
+  }
+  if (parameters.simGamma != 0) {
+    gamma = parameters.simGamma;
+    //cout << "User defined gamma = " << gamma << endl;
+  }
+  cout.precision(10);
+  //cout << "gamma = " << gamma << endl;
+
+  // make sure that offset time is positive and < totalTime
+  if (parameters.offsetTime < 0. || parameters.offsetTime >= parameters.totalTime) {
+    //cout << "# invalid offset time provided" << endl;
+    parameters.offsetTime = 0.;
+  }
+
+  // override the standard gRandom global variable
+  // using TRandom3 which is a better generator
+  // the generator is seeded with 0 so that it chooses its's 
+  // seed based on time??
+  
+  //cs looking fore seg fault 
+  //how can this work?
+  //delete gRandom;
+  //if (this->randomPars) {
+   // gRandom = randomPars;
+    //cout << "rnd restored" << endl;
+  //}
+  //else {
+    //if (parameters.seed == 0) {
+      //time_t curtime;
+      //time(&curtime);
+      //parameters.seed = (Int_t)curtime;
+    //}
+    gRandom = new TRandom3(parameters.seed);
+    parameters.seed = gRandom->GetSeed();
+    //cout << "seed : " << parameters.seed << endl;
+    randomPars = gRandom;
+  //}
+
+
+  // Set Geometry
+  /*
+  if(boundary) delete boundary;
+
+  switch (parameters.geometry) {
+  case 0:
+    boundary = new CircleBoundary(parameters.radius); // 2D circle
+    break;
+  case 1:
+    // box
+    boundary = new BoxBoundary(parameters.boxLow, parameters.boxHigh);
+    break;
+  case 2:
+    boundary = new SphereBoundary(parameters.radius); // sphere
+    break;
+  case 3:
+    boundary = new Box2DBoundary(parameters.boxLow, parameters.boxHigh);
+    break;
+  case 4:
+    boundary = new CylindricalBoundary(parameters.radius, parameters.boxLow[2], parameters.boxHigh[2]);
+    break;
+  case 5:
+    boundary = new Boundary1D(parameters.boxLow[0], parameters.boxHigh[0]);
+    break;
+  default:
+    boundary = 0;
+  }*/
+
+  // Set Uniform Fields
+  delete this->field;
+
+  this->field = new ParticleField(parameters.B0, parameters.E0);
+  if (parameters.uniform_gradient)
+    this->field->SetUniformGrad(parameters.uniform_gradient);
+  else {
+    if (parameters.simple_gradient) {
+      field->SetSimpleGrad(parameters.simple_gradient);
+    }
+    if (parameters.simple_quad_gradient) {
+      field->SetSimpleQuadGrad(parameters.simple_quad_gradient);
+    }
+  }
+  //std::cout<<"past simple fiels"<<std::endl;
+
+  // Set additional fields
+// Set Interpolation fields (generated by COMSOL or other FEM)
+///added by C.Swank, TODO include time dependence
+if (parameters.Interpparam[0]){
+  
+  //time independent? 
+  if ((int)parameters.Interpparam[0]==1){ 
+    
+  double star[3]={(double)parameters.Interpparam[1],(double)parameters.Interpparam[2],(double)parameters.Interpparam[3]};
+  double ste[3]={(double)parameters.Interpparam[4],(double)parameters.Interpparam[5],(double)parameters.Interpparam[6]};
+  int Ninterp[3]={(int)parameters.Interpparam[7],(int)parameters.Interpparam[8],(int)parameters.Interpparam[9]};
+  double nuttin[1]={0.};
+    
+    //std::cout<<"B Field Interpolation"<<endl;
+   //constructor for reference. 
+   //BFieldInterp::BFieldInterp(bool fromfile, int dir,double *star, double *ste, int N[3], double *datainput)
+   //std::cout<<parameters.InterpDir<<"\n";
+    
+  if (strcmp(parameters.InterpDir.c_str(),"x")==0)
+    {
+      this->field->BFIx=new BFieldInterp(true,0,star,ste,Ninterp,nuttin);  
+        this->field->add_field_interp('x', this->field->BFIx);
+      //std::cout<<"adding Bx interpolation field\n";
+      //double tempos[3]={0.3280196619,0.1629835684,-0.8445006203};
+      //std::cout<<"test fied "<<this->field->BFIx->interp3D(tempos)<<"\n";
+    }
+  if (strcmp(parameters.InterpDir.c_str(),"y")==0)
+    {
+    this->field->BFIy=new BFieldInterp(true,1,star,ste,Ninterp,nuttin);  
+    this->field->add_field_interp('y', this->field->BFIy);
+    //std::cout<<"adding By interpolation field\n";
+    }
+  if (strcmp(parameters.InterpDir.c_str(),"z")==0)
+  {
+    this->field->BFIz=new BFieldInterp(true,2,star,ste,Ninterp,nuttin); 
+    this->field->add_field_interp('z', this->field->BFIz);
+    //std::cout<<"adding Bz interpolation field\n";
+  }
+  } 
+}
+
+
+  //std::cout<<"past interp field"<<std::endl;
+
+
+  if (parameters.SDparam[0]){
+  
+  if ((int)parameters.SDparam[0]==1){ 
+    this->field->BSDF=new BDressingFactor();  
+    //std::cout<<"Spin Dressing active without Modulation"<<endl;
+    
+  } 
+  else if((int)parameters.SDparam[0]==2){
+    BDressingCosModFactor *BDCMF= new BDressingCosModFactor();  
+    this->field->BSDF=dynamic_cast<BDressingCosModFactor*>(BDCMF);
+    this->field->BSDF->fm=parameters.SDparam[3];
+      this->field->BSDF->wrf_amp=parameters.SDparam[4];
+    //std::cout<<"Spin Dressing active with Cosine Frequency Modulation"<<endl;
+    
+  }
+  else if((int)parameters.SDparam[0]==3){
+    BDressingCosBModFactor *BDCBMF= new BDressingCosBModFactor(); 
+    this->field->BSDF=dynamic_cast<BDressingCosBModFactor*>(BDCBMF);
+    this->field->BSDF->fm=parameters.SDparam[3];
+    this->field->BSDF->amp=parameters.SDparam[4];
+      //std::cout<<"Spin Dressing active with Cosine Field Magnitude Modulation"<<endl;
+  
+  }
+  else if((int)parameters.SDparam[0]==4){
+    BDressingPulsedBModFactor* BDPBMF = new BDressingPulsedBModFactor();
+    this->field->BSDF=dynamic_cast<BDressingPulsedBModFactor*>(BDPBMF);
+    this->field->BSDF->fm=parameters.SDparam[3];
+      this->field->BSDF->scale1=parameters.SDparam[4];
+      this->field->BSDF->scale2=parameters.SDparam[5];
+      this->field->BSDF->deltat=parameters.SDparam[6];
+    //std::cout<<"Spin Dressing active with Pulsed Field Magnitude Modulation"<<endl;
+  }
+  else if((int)parameters.SDparam[0]==5){
+    BDressingPulsedFreqModFactor* BDPFMF = new BDressingPulsedFreqModFactor();
+    this->field->BSDF=dynamic_cast<BDressingPulsedFreqModFactor*>(BDPFMF);    
+    this->field->BSDF->fm=parameters.SDparam[3];
+      this->field->BSDF->dw1=parameters.SDparam[4];
+      this->field->BSDF->dw2=parameters.SDparam[5];
+      this->field->BSDF->deltat1=parameters.SDparam[6];
+      this->field->BSDF->deltat2=parameters.SDparam[7];
+    //std::cout<<"Spin Dressing active with Pulsed Frequency Modulation"<<endl;
+    //std::cout<<this->field->BSDF->deltat2<<endl;
+  }
+  else if((int)parameters.SDparam[0]==6){
+    BDressingFuncModFactor *BDFMF= new BDressingFuncModFactor();  
+    this->field->BSDF=dynamic_cast<BDressingFuncModFactor*>(BDFMF);
+    this->field->BSDF->fm=parameters.SDparam[3];
+    this->field->BSDF->wrf_amp=parameters.SDparam[4];
+    this->field->BSDF->scale1=parameters.SDparam[5];
+    this->field->BSDF->scale2=parameters.SDparam[6];
+    this->field->BSDF->phi_mod=parameters.SDparam[7];
+    //std::cout<<"Spin Dressing active with Function Frequency Modulation"<<endl;
+  }
+  else if((int)parameters.SDparam[0]==7){
+    BDressingPulsedFreqModFactor2* BDPFMF2 = new BDressingPulsedFreqModFactor2();
+    this->field->BSDF=dynamic_cast<BDressingPulsedFreqModFactor2*>(BDPFMF2);    
+    this->field->BSDF->fm=parameters.SDparam[3];
+      this->field->BSDF->wrf_amp=parameters.SDparam[4];
+      this->field->BSDF->scale=parameters.SDparam[5];
+      this->field->BSDF->deltat1=parameters.SDparam[6];
+      this->field->BSDF->deltat2=parameters.SDparam[7];
+    //std::cout<<"Spin Dressing active with Pulsed Frequency Modulation 2"<<endl;
+    //std::cout<<this->field->BSDF->deltat2<<endl;
+  }
+  else
+    for(int i=0;i<100; i++) std::cout<<"The dressing Modulation type is WRONG, Unpredictable behavior imminent"<<endl;
+        
+  
+  //parameters all the dressing classes need. 
+  this->field->BSDF->wrf=parameters.SDparam[1];
+  this->field->BSDF->phi=parameters.SDparam[2];
+  this->field->BSDF->noise=parameters.noise;
+  this->field->BSDF->pulse=parameters.Pulseparam[0];
+  
+
+  //std::cout<<"past the SD field"<<std::endl;
+
+  ///Ezra Webb addition of initial pulses!!
+  //C Swank addition of noise to pulses! via cmsInterpnoiseGen.C, " ".h
+  // noise must be predetermined otherwise no convergence in the RK5 integration! 
+  if ((int)parameters.Pulseparam[0]==1){ 
+    this->field->BSDF->w_p=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->phi_p=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    //std::cout<<"Initial Pulse with fixed frequency"<<endl;
+    
+  } 
+
+  else if ((int)parameters.Pulseparam[0]==2){ 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    this->field->BSDF->rscale=parameters.Pulseparam[6];
+
+    //std::cout<<"Initial Pulse: sech type"<<endl;
+    
+  } 
+
+    else if ((int)parameters.Pulseparam[0]==3){ 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],(int)parameters.Pulseparam[12],(int)parameters.Pulseparam[13]};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    this->field->BSDF->interpnoise=new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //double temptesttime[1]={testtesttime};
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //std::cout<<"Initial Pulse: sech type with noise"<<endl;
+    }
+    else if ((int)parameters.Pulseparam[0]==4){ 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    //this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    double tempb1interpstart[1]={(double)parameters.Pulseparam[12]};
+    double tempb1interpstep[1]={(double)parameters.Pulseparam[13]};
+    int tempb1interpNum[3]={(int)parameters.Pulseparam[6],1,1};
+    int filenum=(int)parameters.Pulseparam[1];
+    //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
+    //its already hard codded!. 
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
+    //double temptesttime[1]={0.25};
+    //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //int pooperdoop;
+    //std::cin>>pooperdoop;
+    //std::cout<<"Initial Pulse: Numerically tailored with noise"<<endl;
+    }
+
+    else if ((int)parameters.Pulseparam[0]==5){ 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    //this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    double tempb1interpstart[1]={(double)parameters.Pulseparam[12]};
+    double tempb1interpstep[1]={(double)parameters.Pulseparam[13]};
+    int tempb1interpNum[3]={(int)parameters.Pulseparam[6],1,1};
+    int filenum=(int)parameters.Pulseparam[1];
+    //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
+    //its already hard codded!. 
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
+    //double temptesttime[1]={0.};
+    
+    //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //int pooperdoop;
+    //std::cin>>pooperdoop;
+    //std::cout<<"Initial Pulse: Robust Dressed Numerically tailored with noise"<<endl;
+    }
+
+    else if ((int)parameters.Pulseparam[0]==6){ 
+      ///width has been changed to pulse number. 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    
+    //this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    double tempb1interpstart[1]={(double)parameters.Pulseparam[12]};
+    double tempb1interpstep[1]={(double)parameters.Pulseparam[13]};
+    int tempb1interpNum[3]={(int)parameters.Pulseparam[6],1,1};
+    int filenum=(int)parameters.Pulseparam[1];
+    //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
+    //its already hard codded!. 
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
+    //std::cout<<this->field->BSDF->b1Pulse.filenum<<std::endl;
+    //double temptesttime[1]={0.25};
+    //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //int pooperdoop;
+    //std::cin>>pooperdoop;
+    //std::cout<<"Pulse is a Dressing pulse found numerically with filtered noise"<<endl;
+    }
+
+
+
+
+
+  if (parameters.field_formula[0])
+    this->field->add_field_formulaSD('x', parameters.field_formula[0],this->field->BSDF);
+  if (parameters.field_formula[1])
+    this->field->add_field_formulaSD('y', parameters.field_formula[1],this->field->BSDF);
+  if (parameters.field_formula[2])
+    this->field->add_field_formulaSD('z', parameters.field_formula[2],this->field->BSDF);
+
+  }
+  else{
+  if (parameters.field_formula[0])
+    this->field->add_field_formula('x', parameters.field_formula[0]);
+  if (parameters.field_formula[1])
+    this->field->add_field_formula('y', parameters.field_formula[1]);
+  if (parameters.field_formula[2])
+    this->field->add_field_formula('z', parameters.field_formula[2]);
+  }
+  
+
+  //std::cout<<"past Initial pulse"<<std::endl;
+
+  // Diffusion
+  this->boundary->SetDiffusion(parameters.diffusion);
+  // Gravity
+  if (parameters.gravity != 0.) {
+    this->boundary->SetGravity(parameters.gravity);
+  }
+
+  // Initialize factory
+ //if (factory) delete factory;
+    
+  factory = new ParticleFactory();
+  
+  factory->parameters = parameters;
+  factory->field = field;
+  factory->boundary = boundary;
+  factory->scattering = scattering;
+  for (int i=0; i < 4; i++) {
+    factory->vDistribution[i] = vDistribution[i];
+  }
+  //std::cout<<"Done reloading paraemters"<<std::endl;
+}
+
+void Run::useQuiteBoltzmannDistribution(Double_t temperature) {
+
+  TF1 *f1;
+
+  const Double_t boltzmann = 1.38066e-23; // J K^-1
+  const Double_t MHe3 = 2.2 * 3.016029 * 1.66054e-27; // kg !!effective Mass (M*=2.2M)
+
+  //cout << "Using Boltzmann (T = " << temperature << " K)" << endl;
+
+  Double_t temp = MHe3 / (2. * temperature * boltzmann);
+
+  f1 = new TF1("boltzmann", "(x^2) * exp(-(x^2) * [0])", 0, 
+         10. * sqrt(1. / temp));
+  // limit set to 10 v_p (the most probable velocity)
+  // 4.2e-43 integrated probability beyond that velocity
+
+  f1->SetNpx(2000);
+  
+  f1->SetParameter(0,temp);
+
+  this->vDistribution[0] = f1;
+
+
+  temp = sqrt(8. * boltzmann * temperature / (MHe3 * 3.14159));
+
+  this->mfp = 3. * (1.6e-4 / pow(temperature, 7)) / temp;
+
+  temp = sqrt(3. * boltzmann * temperature / MHe3);
+
+  this->tau_C = 3. * (1.6e-4 / pow(temperature, 7)) / (temp*temp);
+
+//  cout << "MFP = " << this->mfp << " m" << endl;
+
+  this->scattering = new Scattering(1);
+  this->scattering->Set(this->tau_C);
+
+ // cout << "Scattering class enabled with \\tau_C = " << this->tau_C << endl;
+
+  return;
+
+
+}
+
+

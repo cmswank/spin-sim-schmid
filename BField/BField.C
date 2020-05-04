@@ -30,6 +30,7 @@ BFieldConst::BFieldConst(double *field) {
 int BFieldConst::getField(double *out, BFieldVars &vars) {
   for (int i=0; i<3; i++)
     out[i] = this->field_const[i];
+  
   return 1;
 }
 

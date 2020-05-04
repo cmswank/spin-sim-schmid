@@ -37,14 +37,14 @@ f=1/deltat/zeropad:1/deltat/zeropad:1/deltat; %zeropadded f
       %(ie b1alpha= .959099139*gamma_3/gamma_n;)
       b1alpha=.959099139*gamma_3/gamma_n; 
 %%%Nominal pulse.
-STpulse=[zeros(1,32),b1alpha*1./(1+exp(-3*linspace(-5,5,10))),b1alpha*ones(1,4),...
-        ones(1,4),1./(1+exp(-3*linspace(5,-5,10))),zeros(1,32)];
-plength=0.5;
+%STpulse=[zeros(1,32),b1alpha*1./(1+exp(-3*linspace(-5,5,10))),b1alpha*ones(1,4),...
+%        ones(1,4),1./(1+exp(-3*linspace(5,-5,10))),zeros(1,32)];
+%plength=0.5;
 
 %%%%robust dressed spin tip pulse. 
-%STpulse=[zeros(1,32),1./(1+exp(-3*linspace(-5,5,10))),ones(1,4),...
-%        ones(1,4),1./(1+exp(-3*linspace(5,-5,10))),zeros(1,32)];  
-%plength=0.78;
+STpulse=[zeros(1,32),1./(1+exp(-3*linspace(-5,5,10))),ones(1,4),...
+        ones(1,4),1./(1+exp(-3*linspace(5,-5,10))),zeros(1,32)];  
+plength=0.78;
 
 
 zeropad=5E4;   
@@ -61,12 +61,12 @@ STactual=abs(fft(BTpulse));
 
 %Normalize pulse for working with stuff. 
 
-BTpulse=BTpulse'./max(BTpulse);
+%BTpulse=BTpulse'./max(BTpulse);
 
 %Crazy idea for robust pulse, (there is a zero frequency component...)
-%BTpulse=ones(size(BTpulse));
+BTpulse=ones(size(BTpulse));
 
-fileID = fopen('/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat','w');
+fileID = fopen('/data1/cmswank/spin-sim-xliu/BField/B1Pulse0.dat','w');
 fwrite(fileID,BTpulse,'double');
 %wow shit is like really really good...
 

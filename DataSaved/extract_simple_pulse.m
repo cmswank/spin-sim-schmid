@@ -1,9 +1,9 @@
 
 
 Bin = 1001;
-Event = 1;
-startnum=3000;
-runs=1000;
+Event = 1000;
+startnum=4000;
+runs=1;
 Sx=zeros(runs,Bin);
 %Sxmean=zeros(Bin,1);
 Sy=zeros(runs,Bin);

@@ -139,12 +139,14 @@ class Run {
 
   Int_t loadRun();
   int CheckVersion();
+  void ReloadParameters();
 
   static int FileExists(const char *filename);
   static void parse_argument_line(int argc, char **argv, int *options, char **filename);
 
  private:
   void useBoltzmannDistribution(Double_t temperature);
+  void useQuiteBoltzmannDistribution(Double_t temperature);
 };
 
 void signal_hanlde_int(int signal);

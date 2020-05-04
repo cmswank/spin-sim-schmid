@@ -5,7 +5,7 @@ import sys
 import shutil
 import time
 
-#the first run number must be even
+#the first run number must be even. (I don't think this is true). 
 
 
 if len(sys.argv) > 1:
@@ -19,7 +19,7 @@ for rn in range(0,nors):
 	#os.system("gnome-terminal -e 'bash -c \"" +sim_run+ " ;exec bash \"'")
 	os.system("nohup " + sim_extract + " > /dev/null 2>&1 &")
 	print('extracting run ' + str(rn+frn))
-	time.sleep(.3)
+	time.sleep(2)
 
 
 
