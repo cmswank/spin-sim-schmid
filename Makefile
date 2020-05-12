@@ -21,7 +21,7 @@ CXXFLAGSOPT   = -O2 -Wall -fPIC -fpermissive -I$(ROOTINC) $(INCDIRS)
 LD            = g++
 LDFLAGS       := $(shell $(ROOTCONFIG) --ldflags )
 SOFLAGS       = -Wl,-soname,libEvent.so -shared 
-LIBS          = $(ROOTLIBS) $(SYSLIBS) -lpython2.7 -lboost_system
+LIBS          = $(ROOTLIBS) $(SYSLIBS) -lpython2.7 -lboost_system -lfftw3
 GLIBS         = $(ROOTLIBS) $(ROOTGLIBS) $(SYSLIBS) 
 
 CXXFLAGS      = $(CXXFLAGSOPT)

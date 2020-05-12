@@ -2,6 +2,12 @@
 #define __CMSINTERPNOISEGEN_H__
 #include <iostream>
 #include <assert.h>
+#include "TH1D.h"
+#include "TVirtualFFT.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TMath.h"
+//#include <fftw3.h> does't play well with ROOT. must use ROOT FFT, UGHHHHH. 
 //#include <boost/thread.hpp>
 //#include <boost/math/special_functions.hpp>
 //#include <boost/random.hpp>
@@ -34,7 +40,7 @@ private:
 	TRandom3* rootRand;
 public:
 	//this defines the data in flattened C type array, (last column moves fastest) and the step size for all arrays. 
-	cmsInterp(double star[1],double ste[1], int N[3], int flat_seed);
+	cmsInterp(double star[1],double ste[1], int N[3], int flat_seed,int freq_cut,int hpass);
     void whitenoiseGen(double nmag);
     double testtest;
 	double *interpdata;
@@ -42,6 +48,9 @@ public:
 	double start[1];
 	int dsize;
 	int Num[3];
+	int rnd_seed;
+	int freq_cut;
+	int hpass;
 
 
 	//this is the function you want to interp. must be from a rectangular grid. 

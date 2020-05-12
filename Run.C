@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <signal.h>
+//#include <fftw3.h>
 
 #include "TMath.h"
 
@@ -665,7 +666,7 @@ if (parameters.Interpparam[0]){
     int tempinterpNum[3]={(int)parameters.Pulseparam[11],(int)parameters.Pulseparam[12],(int)parameters.Pulseparam[13]};
     double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
     double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
-    this->field->BSDF->interpnoise=new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise=new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     //double testtesttime=0.0001;
     //this->field->BSDF->interpnoise->testtest=testtesttime;
@@ -693,7 +694,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.25};
@@ -727,7 +728,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.};
@@ -764,7 +765,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.25};
@@ -781,7 +782,41 @@ if (parameters.Interpparam[0]){
     //std::cin>>pooperdoop;
     std::cout<<"Pulse is a Dressing pulse found numerically with filtered noise"<<endl;
     }
-
+  else if ((int)parameters.Pulseparam[0]==7){ 
+      ///width has been changed to pulse number. 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    
+    //this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    double highpass={(double)parameters.Pulseparam[13]};
+    double cutoff={(double)parameters.Pulseparam[12]};
+    int tempb1interpNum[3]={(int)parameters.Pulseparam[6],1,1};
+    int filenum=(int)parameters.Pulseparam[1];
+    //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
+    //its already hard codded!. 
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],(int)cutoff,(int)highpass);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    //this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
+    //double temptesttime[1]={0.25};
+    //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //int pooperdoop;
+    //std::cin>>pooperdoop;
+    std::cout<<"Adding Splined Filtered Noise to spin dressing"<<endl;
+    }
 
 
 
@@ -1442,7 +1477,7 @@ if (parameters.Interpparam[0]){
     int tempinterpNum[3]={(int)parameters.Pulseparam[11],(int)parameters.Pulseparam[12],(int)parameters.Pulseparam[13]};
     double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
     double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
-    this->field->BSDF->interpnoise=new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise=new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     //double testtesttime=0.0001;
     //this->field->BSDF->interpnoise->testtest=testtesttime;
@@ -1470,7 +1505,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.25};
@@ -1504,7 +1539,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.};
@@ -1541,7 +1576,7 @@ if (parameters.Interpparam[0]){
     int filenum=(int)parameters.Pulseparam[1];
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
-    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7]);
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],5000,0);
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
     this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //std::cout<<this->field->BSDF->b1Pulse.filenum<<std::endl;
@@ -1558,6 +1593,41 @@ if (parameters.Interpparam[0]){
     //int pooperdoop;
     //std::cin>>pooperdoop;
     //std::cout<<"Pulse is a Dressing pulse found numerically with filtered noise"<<endl;
+    }
+    else if ((int)parameters.Pulseparam[0]==7){ 
+      ///width has been changed to pulse number. 
+    this->field->BSDF->width=parameters.Pulseparam[1];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];
+    this->field->BSDF->T_crop=parameters.Pulseparam[4];
+    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    
+    //this->field->BSDF->rscale=parameters.Pulseparam[6];
+    int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
+    double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
+    double tempinterpstep[1]={(double)parameters.Pulseparam[10]};
+    double highpass={(double)parameters.Pulseparam[13]};
+    double cutoff={(double)parameters.Pulseparam[12]};
+    int tempb1interpNum[3]={(int)parameters.Pulseparam[6],1,1};
+    int filenum=(int)parameters.Pulseparam[1];
+    //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
+    //its already hard codded!. 
+    this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],(int)cutoff,(int)highpass);
+    this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    //this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
+    //double temptesttime[1]={0.25};
+    //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;
+    //double testtesttime=0.0001;
+    //this->field->BSDF->interpnoise->testtest=testtesttime;
+    //
+    //std::cout<<"What going on??? "<<this->field->BSDF->interpnoise->interp1D(temptesttime)<<"  \n";
+    //for(int i=0; i<100; i++) {
+      //double temptesttime[1]={(double)i*testtesttime};
+      //std::cout<<this->field->BSDF->interpnoise->data[10]<<"  \n";
+    //}
+    //int pooperdoop;
+    //std::cin>>pooperdoop;
+    //std::cout<<"Adding Splined Filtered Noise to spin dressing"<<endl;
     }
 
 

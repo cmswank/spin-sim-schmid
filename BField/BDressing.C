@@ -200,6 +200,42 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
         return 0.0;//+interpnoise->interp1D(interptime));
       }
 
+      else if (pulse == 7) {
+    //Double Pulses! Attempting to use robust dressing to lock phases together in B1 pulse. 
+      ///putting it so after the pulse it stops dressing.
+
+    double time = vars.t;
+    double interptime[1]={time};
+      /*double mu  = 5;
+      double beta = width*PI/mu;
+      double B0 = 3e-6;
+      double w_mean = B0*(1.83247185e8 + 2.037894730e8)/2;
+      double w_n = B0*1.83247185e8;
+      double w_He = B0*2.037894730e8;
+      std::complex<double> expo(-1,-mu);
+      std::complex<double> i(0,1);
+      double t = time - T_p/2.0;
+      */
+
+     // double tempdoublein;
+     // std::cout<<"Please enter time double \n";
+     // std::cin>>tempdoublein;
+      //double testtest[1]={(double)tempdoublein};
+      //std::cout<<"interp class start "<<interpnoise->start[0]<<"\n";
+      //std::cout<<"interp class step "<<interpnoise->step[0]<<"\n";
+      //std::cout<<" \n"<<this->interpnoise->interpdata[10]<<"  \n";
+      //std::cout<<" "<<this->b1Pulse->interpdata[10]<<"  ";
+      //std::cout<<" "<<this->b1Pulse->interp1D(interptime)<<" ";
+      
+      //return Bscale*(std::real(rscale*std::exp(i*w_n*t)*std::pow(std::cosh(beta*t),expo)+1/rscale*std::exp(i*w_He*t)*std::pow(std::cosh(beta*t),expo)+interpnoise->interp1D(interptime)));
+      
+      
+        //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
+         //std::cout<<time<<std::endl;
+        return cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+    
+        return 0.0;//+interpnoise->interp1D(interptime));
+      }
 
     else
       return cos(get_phase(vars.t));

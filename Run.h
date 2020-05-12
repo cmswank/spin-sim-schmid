@@ -1,11 +1,14 @@
 #ifndef _RUN_H_
 #define _RUN_H_
-
+#include "TH1D.h"
+#include "TVirtualFFT.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TMath.h"
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TRandom3.h"
-#include "TF1.h"
 //#include "cmsInterpnoiseGen.h"
 //#include "BField/cmsB1PulseInterp.h"
 
@@ -16,6 +19,7 @@
 // the class used for reading parameter files
 #include "Neutron.h"
 #include "RunParameters.h"
+//#include <fftw3.h>
 
 const int RUN_VERSION[] = {0, 1, 6};
 
