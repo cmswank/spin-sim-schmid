@@ -26,8 +26,9 @@ class BFieldSimpleGradient : public BField {
   BFieldSimpleGradient(double *grad_vector);
 
   virtual int getField(double *out, BFieldVars &vars);
- protected:
   double grad[3];
+ protected:
+  
 };
 
 /**
@@ -40,8 +41,9 @@ class BFieldSimpleQuadraticGradient : public BFieldSimpleGradient {
   BFieldSimpleQuadraticGradient(double *grad_vector) : BFieldSimpleGradient(grad_vector) {}
 
   virtual int getField(double *out, BFieldVars &vars);
- protected:
   static int sign_matrix[9];
+ protected:
+  
 };
 
 /**
@@ -54,10 +56,10 @@ class BFieldMotional : public BField {
   BFieldMotional() : E_field(0) {};
   BFieldMotional(BField *E_field) : E_field(E_field) {};
   virtual ~BFieldMotional();
-
+  BField *E_field;
   virtual int getField(double *out, BFieldVars &vars);
  protected:
-  BField *E_field;
+
 };
 
 #endif

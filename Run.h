@@ -16,6 +16,8 @@
 #include "BField/BFieldInterp.h"
 #include "Boundary.h"
 #include "Scattering.h"
+
+#include "BField/BField.h"
 // the class used for reading parameter files
 #include "Neutron.h"
 #include "RunParameters.h"
@@ -132,7 +134,7 @@ class Run {
 
   Run(Int_t runID);
   virtual ~Run();
-
+  void EraseFieldFormula();
   void InitializeRun();
   void InitializeTFile();
   void WriteTFile();

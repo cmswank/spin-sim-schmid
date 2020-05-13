@@ -19,8 +19,9 @@ class BFieldAdder : public BField
   virtual ~BFieldAdder();
   virtual int append(BField *field);
   virtual int getField(double *out, BFieldVars &vars);
- protected:
   std::vector<BField *> fields;
+ protected:
+  
 };
 
 /**

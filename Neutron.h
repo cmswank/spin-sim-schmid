@@ -73,7 +73,7 @@ class Neutron {
 
   Scattering *scattering;
 
-  ParticleField *field;
+  
 
   void defaultConstructor();
 
@@ -86,7 +86,7 @@ class Neutron {
 
  public:
 
-  
+  ParticleField *field;
   // previous record kept to enable undo 
   ParticleStatus previous;
 

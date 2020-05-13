@@ -945,6 +945,19 @@ void Run::SaveNeutronRecord(Neutron *n1, int i) {
 Int_t Run::runNeutron() {
 
   Neutron *n1 = factory->newParticle();
+  //std::cout<<"whats the field vector size? "<<factory->field->fields.size()<<std::endl;
+  //double testpos[3]={0.,0.,0.};
+  //double testvel[3]={0.,0.,0.,};
+  //BFieldVars testvars(1./3845./2.,testpos,testvel);
+  //double *Btest=new double[3];
+  
+  //factory->field->getField(Btest,testvars);
+  
+  //std::cout<<"What is about the factory field value? "<<Btest[2]<<std::endl;
+  //factory->field->fields.erase(factory->field->fields.begin(),factory->field->fields.begin()+factory->field->fields.size());
+ // factory->field->getField(Btest,testvars);
+  //std::cout<<"how about now? "<<Btest[2]<<std::endl;
+  
   //Double_t gam=n1->GetGamma();
   //std::cout<<gam<<" ";
 
@@ -1213,6 +1226,11 @@ void set_signal_handles() {
 }
 
 
+//CS addition Erase field formula
+void Run::EraseFieldFormula(){
+  for (int find=0; find<3; find++)
+    this->parameters.field_formula[find]=0;
+}
 
 //CS Addition ReloadParameters. 
 
@@ -1304,9 +1322,13 @@ void Run::ReloadParameters() {
     boundary = 0;
   }*/
 
-  // Set Uniform Fields
+    //remove previous fields, this turned out to be tricky because its a mass of spagetti and a lot are protected. 
+  
+  
   delete this->field;
 
+  // Set Uniform Fields
+    
   this->field = new ParticleField(parameters.B0, parameters.E0);
   if (parameters.uniform_gradient)
     this->field->SetUniformGrad(parameters.uniform_gradient);
@@ -1662,7 +1684,7 @@ if (parameters.Interpparam[0]){
   }
 
   // Initialize factory
- //if (factory) delete factory;
+  
     
   factory = new ParticleFactory();
   

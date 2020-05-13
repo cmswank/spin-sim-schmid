@@ -231,10 +231,12 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
       
       
         //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
-         //std::cout<<time<<std::endl;
-        return cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+         
+        //if (time>0.999)
+         //std::cout<<interpnoise->interp1D(interptime)<<std::endl;
+        return cos(get_phase(vars.t))+interpnoise->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
     
-        return 0.0;//+interpnoise->interp1D(interptime));
+        //return 0.0;//+interpnoise->interp1D(interptime));
       }
 
     else

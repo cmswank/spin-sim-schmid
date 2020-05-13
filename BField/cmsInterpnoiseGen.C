@@ -214,18 +214,17 @@ void cmsInterp::whitenoiseGen(double nmag){
 		
 	}	
 	
-
+	//std::cout<<" In_noise "<<randnoise[0]<<", ";
 	Int_t n_size = dsize;
-	TVirtualFFT *fft = TVirtualFFT::FFT(0, &n_size, "R2C ES K");
-	fft->SetPoints(randnoise);
-	fft->Transform();
-	
 	Double_t *re_noise = new Double_t[n_size];
 	Double_t *im_noise = new Double_t[n_size];
 
-
+	
+	TVirtualFFT *fft = TVirtualFFT::FFT(1, &n_size, "R2C ES K");
+	fft->SetPoints(randnoise);
+	fft->Transform();
 	fft->GetPointsComplex(re_noise,im_noise);
-
+	//std::cout<<"re_noise "<<re_noise[82]<<", im_noise "<<im_noise[82]<<"\n";
 	
 
 	//fftw_complex* Snoise = (fftw_complex*) fftw_malloc(sizeof(double)*dsize);
@@ -239,6 +238,7 @@ void cmsInterp::whitenoiseGen(double nmag){
 		if((int)i/dt/dsize<hpass || (int)(dsize-i)/dt/dsize<hpass){
 			re_noise[i]=0.;
 			im_noise[i]=0.;
+			//std::cout<<i<<"  ";
 			
 		}
 		
@@ -257,6 +257,7 @@ void cmsInterp::whitenoiseGen(double nmag){
 		interpdata[i]=randnoise[i]/((double)dsize);
 	}
 
+	//std::cout<<" Out_noise "<<interpdata[0]<<"\n";
 	delete fft;
 	delete ifft;
 	//fftw_destroy_plan(pFFT);

@@ -53,26 +53,34 @@ def main_loop(run):
 
             #run.parameters.Pulseparam[1]=rn//2+1;
             ##E field Variation
-            if rn%2==0:
-                run.parameters.E0[0]=-run.parameters.E0[0];
-                if rn ==4:
-                    run.parameters.E0[0]=0;
-
+            #if rn%2==0:
+             #   run.parameters.E0[0]=-run.parameters.E0[0];
+              #  if rn ==4:
+            
+            run.parameters.E0[0]=0.;        
             run.parameters.simType=rn%2
             if rn%2==0:
+                #B1=8.1e-5*(1+1E-4*(rn/2-run.parameters.nEntries/4)/(run.parameters.nEntries/2))
+                #print "Bz1 = "+str(B1)+","
+                #run.EraseFieldFormula();
+                #run.parameters.field_assignment("BzAdd",str(B1))
                 run.parameters.spinSettings[0]=0.
                 run.parameters.spinSettings[1]=np.cos(0.48/2)
                 run.parameters.spinSettings[2]=np.sin(0.48/2)
-                run.parameters.edm=1E-14;
-                run.parameters.speed=5;
+                run.parameters.edm=0
+                run.parameters.speed=5
+
             else:
                 run.parameters.spinSettings[0]=0.
                 run.parameters.spinSettings[1]=np.cos(0.48/2)
                 run.parameters.spinSettings[2]=-np.sin(0.48/2)
-                run.parameters.edm=0;
-            run.parameters.seed=678742112
-            run.ReloadParameters()
+                run.parameters.edm=0
+            run.parameters.Pulseparam[7]=82*(rn+1) #7 is noise rng seed. 
+            run.parameters.seed=82*(rn+1) #678742112  #seed is trajectory rng. 
+            run.ReloadParameters();
+            
         ret = run.runNeutron()
+
 
         if ret == 0:
             sys.stdout.write(str(rn)+' ')

@@ -905,7 +905,9 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   }
 
   Bmag[2] = Vector::Norm(tempB0);
-
+  //if (Bmag[2]>1E-4)
+    //std::cout<<Bmag[2]<<std::endl;
+    
   // Get k4
   tempTime = a4 * time;
   Vector::Copy(current.position, tempPos);
@@ -920,7 +922,6 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   }
   BFieldVars vars4(GetLifetime() + tempTime, tempPos, tempVel);
   field->getField(tempB0, vars4);
-
   tempSpin[0] = current.spin[0] + b41 * k1[0] + b42 * k2[0] + b43 * k3[0];
   tempSpin[1] = current.spin[1] + b41 * k1[1] + b42 * k2[1] + b43 * k3[1];
   tempSpin[2] = current.spin[2] + b41 * k1[2] + b42 * k2[2] + b43 * k3[2];

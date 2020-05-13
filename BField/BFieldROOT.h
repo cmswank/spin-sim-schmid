@@ -19,9 +19,9 @@ class BTF1_Factor : BFactor
  public:
   BTF1_Factor(TF1 *fun = 0) : BFactor(), function(fun) {};
   virtual double getFactor(BFieldVars &vars);
-
- protected:
   TF1 *function;
+ protected:
+  
 };
 
 /**
@@ -32,9 +32,9 @@ class BTFormula_Factor : public BFactor {
  public:
   BTFormula_Factor(TFormula *fun = 0) : BFactor(), formula4(fun) {};
   virtual double getFactor(BFieldVars &vars);
-
- protected:
   TFormula *formula4;
+ protected:
+  
 };
 
 /**
@@ -45,10 +45,10 @@ class BTSDFormula_Factor : public BFactor {
  public:
   BTSDFormula_Factor(TFormula *fun = 0, BDressingFactor *Bsdf=0) : BFactor(), formula4(fun), BSDF(Bsdf) {};
   virtual double getFactor(BFieldVars &vars);
-  
- protected:
   TFormula *formula4;
-  BDressingFactor *BSDF;	
+  BDressingFactor *BSDF;  
+ protected:
+
   
 };
 

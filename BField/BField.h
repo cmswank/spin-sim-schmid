@@ -36,8 +36,9 @@ class BFieldConst : public BField
  public:
   BFieldConst(double *field = 0);
   virtual int getField(double *out, BFieldVars &vars);
- protected:
   double field_const[3];
+ protected:
+  
 };
 
 /**
@@ -49,8 +50,9 @@ class BFactor
   BFactor(double f = 1.) : factor(f) {};
   virtual ~BFactor() {};
   virtual double getFactor(BFieldVars &vars);
- protected:
   double factor;
+ protected:
+  
 };
 
 #endif
