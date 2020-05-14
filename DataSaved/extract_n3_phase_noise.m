@@ -24,12 +24,12 @@
 %run 46000 100-1025 bandpass. 10 seconds 10001 bins
 %run 48000 200-1025 bandpass. 10 seconds 10001 bins
 %run 50000 40-1025 bandstop. 
-startnum=32000;
+startnum=80000;
 
 Bin = 1001;
 
-Event = 1;
-runs=1000;
+Event = 2000;
+runs=10;
 Sxn=zeros(runs,Bin);
 %Sxmean=zeros(Bin,1);
 Syn=zeros(runs,Bin);

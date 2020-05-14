@@ -60,10 +60,12 @@ def main_loop(run):
             run.parameters.E0[0]=0.;        
             run.parameters.simType=rn%2
             if rn%2==0:
+
                 #B1=8.1e-5*(1+1E-4*(rn/2-run.parameters.nEntries/4)/(run.parameters.nEntries/2))
                 #print "Bz1 = "+str(B1)+","
                 #run.EraseFieldFormula();
                 #run.parameters.field_assignment("BzAdd",str(B1))
+                #Neutrons:
                 run.parameters.spinSettings[0]=0.
                 run.parameters.spinSettings[1]=np.cos(0.48/2)
                 run.parameters.spinSettings[2]=np.sin(0.48/2)
@@ -71,6 +73,7 @@ def main_loop(run):
                 run.parameters.speed=5
 
             else:
+                #3He:
                 run.parameters.spinSettings[0]=0.
                 run.parameters.spinSettings[1]=np.cos(0.48/2)
                 run.parameters.spinSettings[2]=-np.sin(0.48/2)

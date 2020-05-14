@@ -806,7 +806,8 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
     d5 = 1.93219866071428562e-2,
     d6 = 0.25;
   
-  static Double_t gamma = GetGamma();
+  Double_t gamma = GetGamma();
+
 
   Int_t use_edm = (edm != 0)? 1 : 0;
   static Double_t gamma_edm = GetGammaE();
@@ -825,6 +826,7 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   // Get k1
   BFieldVars vars1(GetLifetime(), current.position, current.velocity);
   field->getField(tempB0, vars1);
+
 
   Vector::CrossProduct(current.spin, tempB0, k1);
   k1[0] *= time * gamma;

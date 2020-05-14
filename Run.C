@@ -1228,8 +1228,8 @@ void set_signal_handles() {
 
 //CS addition Erase field formula
 void Run::EraseFieldFormula(){
-  for (int find=0; find<3; find++)
-    this->parameters.field_formula[find]=0;
+  for (int findi=0; findi<3; findi++)
+    this->parameters.field_formula[findi]=0;
 }
 
 //CS Addition ReloadParameters. 
@@ -1242,6 +1242,7 @@ void Run::ReloadParameters() {
   //  dataTree = createTree(name);
   //}
   //std::cout<<"Reloding Parameters"<<std::endl;
+/*
   Double_t gamma = 0;
   switch (parameters.simType) {
   case 0:
@@ -1260,9 +1261,9 @@ void Run::ReloadParameters() {
     gamma = parameters.simGamma;
     //cout << "User defined gamma = " << gamma << endl;
   }
-  cout.precision(10);
+  //cout.precision(10);
   //cout << "gamma = " << gamma << endl;
-
+*/
   // make sure that offset time is positive and < totalTime
   if (parameters.offsetTime < 0. || parameters.offsetTime >= parameters.totalTime) {
     //cout << "# invalid offset time provided" << endl;
@@ -1685,13 +1686,14 @@ if (parameters.Interpparam[0]){
 
   // Initialize factory
   
-    
-  factory = new ParticleFactory();
+  //delete factory; deleting factory doesn't work. but it is a memory leak, I think.
+  this->factory = new ParticleFactory();
   
-  factory->parameters = parameters;
-  factory->field = field;
-  factory->boundary = boundary;
-  factory->scattering = scattering;
+  this->factory->parameters = parameters;
+  this->factory->field = field;
+  this->factory->boundary = boundary;
+  this->factory->scattering = scattering;
+  
   for (int i=0; i < 4; i++) {
     factory->vDistribution[i] = vDistribution[i];
   }
