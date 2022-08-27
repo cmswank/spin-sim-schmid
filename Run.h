@@ -141,6 +141,7 @@ class Run {
 
   void SaveNeutronRecord(Neutron *n1, int i);
   Int_t runNeutron();
+  Int_t runNeutronQuiet();
   Int_t runAll();
 
   Int_t loadRun();

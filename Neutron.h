@@ -79,13 +79,14 @@ class Neutron {
 
   Double_t gamma; // stores gamma
 
-  Double_t edm; // edm in e*m
+  
   /*
    * execute simulation with interaction of edm with E field
    */
 
  public:
-
+  Double_t edm; // edm in e*m
+  
   ParticleField *field;
   // previous record kept to enable undo 
   ParticleStatus previous;

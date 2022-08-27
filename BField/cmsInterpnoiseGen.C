@@ -165,6 +165,7 @@ double cmsInterp::nCubicInterpolate (int n, double* p, double coordinates[]) {
 
 void cmsInterp::whitenoiseGen(double nmag){
 	
+	//rnd_seed=rnd;
 	//DIST_velocity dist_vel(0.0f,nmag);
 	//rand_vel.distribution()=dist_vel;
 	
@@ -191,6 +192,8 @@ void cmsInterp::whitenoiseGen(double nmag){
 	/// must be 3 (for 1D,2D and 3D if not using other dimensions put in 1.)
 	int Numb[3]={2*freq_cut,1,1};
 
+	//std::cout<<"HELLO!"<<std::flush;
+
 	cmsInterp* wnShort=new cmsInterp(sr,sp,Numb,rnd_seed,freq_cut,hpass);
 
 	for(int i = 0; i<2*freq_cut;i++){
@@ -213,6 +216,7 @@ void cmsInterp::whitenoiseGen(double nmag){
 		randnoise[i]=wnShort->interp1D(timep);
 		
 	}	
+	
 	
 	//std::cout<<" In_noise "<<randnoise[0]<<", ";
 	Int_t n_size = dsize;
@@ -237,7 +241,7 @@ void cmsInterp::whitenoiseGen(double nmag){
 	for(int i =0; i<dsize; i++){
 		if((int)i/dt/dsize<hpass || (int)(dsize-i)/dt/dsize<hpass){
 			re_noise[i]=0.;
-			im_noise[i]=0.;
+			im_noise[i]=0.0;
 			//std::cout<<i<<"  ";
 			
 		}
@@ -254,17 +258,136 @@ void cmsInterp::whitenoiseGen(double nmag){
 	//fftw_execute(pIFFT);
 
 	for(int i =0; i<dsize; i++){
-		interpdata[i]=randnoise[i]/((double)dsize);
+		interpdata[i]=randnoise[i]/((double)dsize); //// divide by dsize for fft norm.    ////
 	}
 
 	//std::cout<<" Out_noise "<<interpdata[0]<<"\n";
+	
 	delete fft;
 	delete ifft;
+	delete wnShort;
+	delete[] randnoise;
 	//fftw_destroy_plan(pFFT);
 	//fftw_destroy_plan(pIFFT);
 	return;
 
 }
+
+void cmsInterp::whitenoiseReload(double nmag,int rnd){
+	
+
+	
+	//rnd_seed=rnd;
+	std::cout<<"Start Reload1"<<std::endl;
+	//DIST_velocity dist_vel(0.0f,nmag);
+	//rand_vel.distribution()=dist_vel;
+	
+	//double tempdat[dsize];
+	//std::cout<<"creating noise array of size "<<dsize<<"\n";
+	//double tempstep=std::sqrt(step[0]);
+	//double tempinterpdata[dsize];
+
+	///using biquadratic filter to simulate analog filtering around the resonance of he-3 and neutorns. 
+	///this is using the definition found in MATLAB ('sosfilt' function). 
+	//double b0[10]=[0.851562784340117, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+	//double b1[10]=[-1.70236224840832,-1.99876038823638,-1.99897732511815,-1.99810493616397,-1.99844246601447,-1.99722738899032,-1.99711162293135,-1.99745942235603,-1.99775196317439,-1.99811022445441];
+    //double b2[10]=[0.852406387524562,1.00062149657846,1.00089415908201,1.00000000000000,1.00037893782208,0.999145240070884,0.998999999501539,0.999321513660361,0.999688789508662,0.999961510851104];
+	//a0 are all one in the is formalism. 
+	//double a1[10]=[-1.94058412426200,-1.94411442994908,-1.94702414507003,-1.95522176524410,-1.96194610847760,-1.96759196042180,-1.97819531998354,-1.98723515502367,-1.98271163565115,-1.99541171151643];
+	//double a2[10]=[0.943918717791235,0.946409900199799,0.951366609744894,0.956711356790862,0.967080205168559,0.968622134370657,0.978993452772803,0.987918616653233,0.988308545436206,0.996047957191888]
+	double sp[1]={1.0};
+	//for(int i = 0; i<3; i++) step[i]=1.0;
+	std::cout<<freq_cut<<" f Start Reload2"<<std::endl;
+	double sr[1]={0.0};
+	//for(int i = 0; i<3; i++) start[i]=0.0;
+	
+	std::cout<<"Start Reload3"<<std::endl;
+
+	/// must be 3 (for 1D,2D and 3D if not using other dimensions put in 1.)
+	int Numb[3]={2*freq_cut,1,1};
+
+	
+	std::cout<<"Start Reload4"<<std::endl;
+
+	cmsInterp* wnShort=new cmsInterp(sr,sp,Numb,rnd,freq_cut,hpass);
+
+	for(int i = 0; i<2*freq_cut;i++){
+		wnShort->interpdata[i]=rootRand->Gaus(0.0f,nmag);
+	}
+
+	//std::cout<<"this will seg fault now \n";
+	
+	
+	double dt=step[0];
+
+	double timep[1];
+	
+	Double_t *randnoise=new Double_t[dsize];
+
+	for(int i = 0; i<dsize; i++){
+
+		timep[0]= ((double)i)*2.*((double)freq_cut)/((double)dsize);
+		///normalized to SNR=1, (or simply multiply by 1/SNR to get the correct noise amplitude)   
+		randnoise[i]=wnShort->interp1D(timep);
+		
+	}	
+	
+	
+	//std::cout<<" In_noise "<<randnoise[0]<<", ";
+	Int_t n_size = dsize;
+	Double_t *re_noise = new Double_t[n_size];
+	Double_t *im_noise = new Double_t[n_size];
+
+	
+	TVirtualFFT *fft = TVirtualFFT::FFT(1, &n_size, "R2C ES K");
+	fft->SetPoints(randnoise);
+	fft->Transform();
+	fft->GetPointsComplex(re_noise,im_noise);
+	//std::cout<<"re_noise "<<re_noise[82]<<", im_noise "<<im_noise[82]<<"\n";
+	
+
+	//fftw_complex* Snoise = (fftw_complex*) fftw_malloc(sizeof(double)*dsize);
+	//fftw_complex* out = (fftw_complex*) fftw_malloc(sizeof(double)*dsize);
+	//fftw_plan pFFT = fftw_plan_dft_r2c_1d(dsize, interpdata, Snoise, FFTW_ESTIMATE);
+	//fftw_execute(pFFT);
+
+	//perfect highpass filter...
+	//hpass=[zeros(bndstp(1)*t(end)-1,1);zeros((bndstp(2)-bndstp(1))*t(end),1);ones(length(t)-2*bndstp(2)*t(end)+1,1);zeros((bndstp(2)-bndstp(1))*t(end),1);zeros(bndstp(1)*t(end),1)];
+	for(int i =0; i<dsize; i++){
+		if((int)i/dt/dsize<hpass || (int)(dsize-i)/dt/dsize<hpass){
+			re_noise[i]=0.;
+			im_noise[i]=0.0;
+			//std::cout<<i<<"  ";
+			
+		}
+		
+	}
+	
+	TVirtualFFT *ifft = TVirtualFFT::FFT(1, &n_size, "C2R ES K");
+	
+	ifft->SetPointsComplex(re_noise,im_noise);
+	ifft->Transform();
+	ifft->GetPoints(randnoise);
+	
+	//fftw_plan pIFFT = fftw_plan_dft_1d(dsize, out, Snoise, FFTW_BACKWARD, FFTW_ESTIMATE);
+	//fftw_execute(pIFFT);
+
+	for(int i =0; i<dsize; i++){
+		interpdata[i]=randnoise[i]/((double)dsize); //// divide by dsize for fft norm.    ////
+	}
+
+	//std::cout<<" Out_noise "<<interpdata[0]<<"\n";
+	delete fft;
+	delete ifft;
+	delete wnShort;
+	delete[] randnoise;
+	//fftw_destroy_plan(pFFT);
+	//fftw_destroy_plan(pIFFT);
+	return;
+
+}
+
+
 /*
 int main () {
 	

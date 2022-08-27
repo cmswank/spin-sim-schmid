@@ -1,7 +1,7 @@
 
-Bin = 10001;
-Event = 6;
- startnum=60000;%50050;
+Bin = 1001;
+Event = 10000;
+ startnum=400;%50050;
  runs=1;
  Sx=zeros(runs,Bin);
 Sy=zeros(runs,Bin);

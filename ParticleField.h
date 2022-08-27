@@ -21,7 +21,7 @@
  */
 class ParticleField : public BFieldAdder {
 
-  static const Double_t C = 2.99792458e8;
+  Double_t C = 2.99792458e8;
 
  protected:
   BFieldConst *uniformField;

@@ -66,26 +66,30 @@ void RunData::Initialize(Int_t n) {
   Reset();
 
   this->n = n;
-  bounces = new Int_t[n];
-  scat = new  Int_t[n];
-  steps = new  Int_t[n];
-  backsteps = new Int_t[n];
-  time = new  Double_t[n];
-  posx = new  Double_t[n];
-  posy = new  Double_t[n];
-  posz = new  Double_t[n];
-  velx = new Double_t[n];
-  vely = new Double_t[n];
-  velz = new Double_t[n];
-  speed = new Double_t[n];
-  spinx = new Double_t[n];
-  spiny = new Double_t[n];
-  spinz = new Double_t[n];
+  this->bounces = new Int_t[n];
+  this->scat = new  Int_t[n];
+  this->steps = new  Int_t[n];
+  this->backsteps = new Int_t[n];
+  this->time = new  Double_t[n];
+  this->posx = new  Double_t[n];
+  this->posy = new  Double_t[n];
+  this->posz = new  Double_t[n];
+  this->velx = new Double_t[n];
+  this->vely = new Double_t[n];
+  this->velz = new Double_t[n];
+  this->speed = new Double_t[n];
+  this->spinx = new Double_t[n];
+  this->spiny = new Double_t[n];
+  this->spinz = new Double_t[n];
 
-  fieldx = new Double_t[n];
-  fieldy = new Double_t[n];
-  fieldz = new Double_t[n];
+  this->fieldx = new Double_t[n];
+  this->fieldy = new Double_t[n];
+  this->fieldz = new Double_t[n];
 }
+
+
+
+
 
 /**
  * Create data branches in TTree
@@ -187,6 +191,7 @@ Neutron *ParticleFactory::newParticle() {
     }
     p = (Neutron*)h;
     p->SetGamma(HE3_GAMMA);
+    p->SetEDM(0.0);
   }
   else {
     
@@ -198,6 +203,8 @@ Neutron *ParticleFactory::newParticle() {
   }
   if (parameters.simEDM != 0) {
     p->SetEDM(parameters.simEDM);
+    //std::cout<<"setting EDM to "<<parameters.simEDM<<"\n";
+    //std::cout<<"actual nEDM is "<<p->GetGammaE()<<"\n";
   }
   p->SetBoundary(boundary);
   p->SetField(field);
@@ -569,8 +576,14 @@ if (parameters.Interpparam[0]){
 		BDressingCosModFactor *BDCMF= new BDressingCosModFactor();	
 		this->field->BSDF=dynamic_cast<BDressingCosModFactor*>(BDCMF);
 		this->field->BSDF->fm=parameters.SDparam[3];
+    this->field->BSDF->wrf=parameters.SDparam[1];
   		this->field->BSDF->wrf_amp=parameters.SDparam[4];
-		std::cout<<"Spin Dressing active with Cosine Frequency Modulation"<<endl;
+      this->field->BSDF->t1=parameters.SDparam[5];
+      this->field->BSDF->t2=parameters.SDparam[6];
+      this->field->BSDF->nmod=parameters.SDparam[7];
+      this->field->BSDF->findFM();
+      
+		std::cout<<"Spin Dressing active with Constant Power Modulation"<<endl;
 		
 	}
 	else if((int)parameters.SDparam[0]==3){
@@ -755,6 +768,9 @@ if (parameters.Interpparam[0]){
     this->field->BSDF->T_crop=parameters.Pulseparam[4];
     this->field->BSDF->T_pause=parameters.Pulseparam[5];
     
+//[0]=6, [1]=width and or filenum, [2]=Bscale, [3]=T_p, [4]= T_crop; [5]=T_pause, [6]= tempb1interpNum. [7]= rng seed, [8]= white noise std. 
+    //[9]=tempinterp
+
     //this->field->BSDF->rscale=parameters.Pulseparam[6];
     int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
     double tempinterpstart[1]={(double)parameters.Pulseparam[9]};
@@ -785,10 +801,10 @@ if (parameters.Interpparam[0]){
   else if ((int)parameters.Pulseparam[0]==7){ 
       ///width has been changed to pulse number. 
     this->field->BSDF->width=parameters.Pulseparam[1];
-    this->field->BSDF->Bscale=parameters.Pulseparam[2];
-    this->field->BSDF->T_p=parameters.Pulseparam[3];
-    this->field->BSDF->T_crop=parameters.Pulseparam[4];
-    this->field->BSDF->T_pause=parameters.Pulseparam[5];
+    this->field->BSDF->Bscale=parameters.Pulseparam[2]; //use as Bscale->Wamp [2],// use as T-P->a [3],//use as b T_crop->b [4],//use as T_pause->n [5];
+    this->field->BSDF->T_p=parameters.Pulseparam[3];    // use as T-P->a [3]
+    this->field->BSDF->T_crop=parameters.Pulseparam[4]; //use as b T_crop->b [4]
+    this->field->BSDF->T_pause=parameters.Pulseparam[5]; //use as T_pause->n [5];
     
     //this->field->BSDF->rscale=parameters.Pulseparam[6];
     int tempinterpNum[3]={(int)parameters.Pulseparam[11],1,1};
@@ -887,6 +903,8 @@ void Run::InitializeTFile() {
   }
 }
 
+
+
 /**
  * Write data to TFile
  */
@@ -931,6 +949,9 @@ void Run::SaveNeutronRecord(Neutron *n1, int i) {
   BFieldVars temp_vars(temp_time, n1->GetPosition(), n1->GetVelocity());
   Double_t temp4[3];
   field->getField(temp4, temp_vars);
+  //if (i==3)
+    //std::cout<<temp4[2]<<std::endl;
+    
   neutronData.fieldx[i] = temp4[0];
   neutronData.fieldy[i] = temp4[1];
   neutronData.fieldz[i] = temp4[2];
@@ -945,6 +966,7 @@ void Run::SaveNeutronRecord(Neutron *n1, int i) {
 Int_t Run::runNeutron() {
 
   Neutron *n1 = factory->newParticle();
+
   //std::cout<<"whats the field vector size? "<<factory->field->fields.size()<<std::endl;
   //double testpos[3]={0.,0.,0.};
   //double testvel[3]={0.,0.,0.,};
@@ -957,9 +979,11 @@ Int_t Run::runNeutron() {
   //factory->field->fields.erase(factory->field->fields.begin(),factory->field->fields.begin()+factory->field->fields.size());
  // factory->field->getField(Btest,testvars);
   //std::cout<<"how about now? "<<Btest[2]<<std::endl;
-  
+  //Double_t gamE=n1->GetGammaE();
+  //Double_t nEDM=n1->edm;
   //Double_t gam=n1->GetGamma();
-  //std::cout<<gam<<" ";
+  //std::cout<<gamE<<" ";
+  //std::cout<<nEDM<<" ";
 
   Double_t nextTime;
   Int_t nBounces = 0;
@@ -1055,6 +1079,7 @@ Int_t Run::runNeutron() {
       
   } // end for loop
 
+  // This is where it fills the data tree. We need to remake the data
   dataTree->Fill();
 
   if (parameters.randBins == 2) {
@@ -1068,6 +1093,150 @@ Int_t Run::runNeutron() {
 
   return 0;
 }
+
+
+
+
+
+Int_t Run::runNeutronQuiet() {
+
+  Neutron *n1 = factory->newParticle();
+  //std::cout<<"whats the field vector size? "<<factory->field->fields.size()<<std::endl;
+  //double testpos[3]={0.,0.,0.};
+  //double testvel[3]={0.,0.,0.,};
+  //BFieldVars testvars(1./3845./2.,testpos,testvel);
+  //double *Btest=new double[3];
+  
+  //factory->field->getField(Btest,testvars);
+  
+  //std::cout<<"What is about the factory field value? "<<Btest[2]<<std::endl;
+  //factory->field->fields.erase(factory->field->fields.begin(),factory->field->fields.begin()+factory->field->fields.size());
+ // factory->field->getField(Btest,testvars);
+  //std::cout<<"how about now? "<<Btest[2]<<std::endl;
+  
+  //Double_t gam=n1->GetGamma();
+  //std::cout<<gam<<" ";
+
+  Double_t nextTime;
+  Int_t nBounces = 0;
+  Int_t collision = 0;
+
+  Int_t i; // equally spaced samples to take
+  // in addition to t=0 which is ALWAYS stored at the zeroth place
+  // spacing is done so that the last time "totalTime" is the last entry
+
+  Double_t *temp = 0;
+
+  neutronData.n = parameters.nBins + 1;
+  neutronData.id = nCurrent++;
+
+  static Double_t *randBinTimes = 0;
+  static Int_t *randBinOrder = 0;
+  if (parameters.randBins > 0 && !randBinTimes) {
+    // the times are randomly distributed over totalTime
+    // NB the bins are sorted by time
+    // so the random time distribution in each bin is not uniform 
+    randBinTimes = new Double_t[parameters.nBins];
+    randBinOrder = new Int_t[parameters.nBins];
+    for (i = 0; i < parameters.nBins; i++) {
+      randBinTimes[i] = gRandom->Rndm() * (parameters.totalTime - parameters.offsetTime) + parameters.offsetTime;
+    }
+    TMath::Sort(parameters.nBins, randBinTimes, randBinOrder, 0);
+    // descending order sort
+  }
+
+  nBounces = 0;nextTime = 0.;
+  for (i = 0; i <= parameters.nBins; i++) {
+    if (i > 0 && n1->GetLifetime() < nextTime)
+      cout << "advanced not hard enough i=" << i << endl;
+    
+    if (parameters.randBins > 0 && i < parameters.nBins) {
+      nextTime = randBinTimes[randBinOrder[i]];
+    }
+    else {
+      // calculate the next snapshot time
+      nextTime = parameters.offsetTime + ((Double_t)i + 1.) * (parameters.totalTime - parameters.offsetTime) / ((Double_t)parameters.nBins);
+    }
+
+    SaveNeutronRecord(n1, i);
+
+    // Save the first position as "collision"
+    if (i == 0) {
+      temp = n1->GetPosition();
+      neutronData.bx[0] = temp[0];
+      neutronData.by[0] = temp[1];
+      neutronData.bz[0] = temp[2];
+      neutronData.bkind[0] = 0;
+    }
+
+    // When done saving, exit the for loop
+    if (i == parameters.nBins)
+      break;
+
+    AdvanceOption advance_mode;
+    if (nBounces < 200) {
+      advance_mode = ADVANCE_STOP_ON_BOUNCE;
+    }
+    else {
+      advance_mode = ADVANCE_NO_STOP;
+    }
+
+    // Propagate the particle
+    while (n1->GetLifetime() < nextTime) {
+      Double_t delta_t = nextTime - n1->GetLifetime();
+      Double_t advance_ret = n1->Advance(delta_t, advance_mode);
+      //gam=n1->GetGamma();
+      
+      //if (gam<-193247173) std::cout<<gam<<"  ";
+      
+
+      if (advance_ret < 0) {
+  cout << "Error: Advance returned time < 0" << endl;
+  delete n1;
+  return -1;
+      }
+      // In case of a collision
+      if (collision > 0) {
+  nBounces++;
+  if (nBounces < 200) {
+    temp = n1->GetPosition();
+    neutronData.bx[nBounces] = temp[0];
+    neutronData.by[nBounces] = temp[1];
+    neutronData.bz[nBounces] = temp[2];
+    neutronData.bkind[nBounces] = collision;
+  } 
+      }
+      
+    } // end while loop    
+      
+  } // end for loop
+
+  // This is where it fills the data tree. We need to remake the data
+  //dataTree->Fill();
+
+  if (parameters.randBins == 2) {
+    // set randBins = 2; to randomize the bins for each particle
+    delete[] randBinTimes;
+    delete[] randBinOrder;
+    randBinTimes = 0;
+  }
+
+  delete n1;
+
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Run all particles in loop
@@ -1242,7 +1411,7 @@ void Run::ReloadParameters() {
   //  dataTree = createTree(name);
   //}
   //std::cout<<"Reloding Parameters"<<std::endl;
-/*
+
   Double_t gamma = 0;
   switch (parameters.simType) {
   case 0:
@@ -1251,7 +1420,7 @@ void Run::ReloadParameters() {
     //std::cout<<"neutron gamma: "<<gamma<<std::endl;
     break;
   case 1:
-   // cout << "He3 Simulation" << endl;
+    // cout << "He3 Simulation" << endl;
     gamma = HE3_GAMMA;
     //std::cout<<"3He gamma: "<<gamma<<std::endl;
     useQuiteBoltzmannDistribution(parameters.temperature);
@@ -1263,7 +1432,7 @@ void Run::ReloadParameters() {
   }
   //cout.precision(10);
   //cout << "gamma = " << gamma << endl;
-*/
+
   // make sure that offset time is positive and < totalTime
   if (parameters.offsetTime < 0. || parameters.offsetTime >= parameters.totalTime) {
     //cout << "# invalid offset time provided" << endl;
@@ -1325,8 +1494,10 @@ void Run::ReloadParameters() {
 
     //remove previous fields, this turned out to be tricky because its a mass of spagetti and a lot are protected. 
   
-  
-  delete this->field;
+  //this->field->BSDF->interpnoise->~cmsInterp();
+
+  //this->field->BSDF->b1Pulse->~cmsB1PulseInterp();
+  //delete this->field;
 
   // Set Uniform Fields
     
@@ -1399,7 +1570,12 @@ if (parameters.Interpparam[0]){
     BDressingCosModFactor *BDCMF= new BDressingCosModFactor();  
     this->field->BSDF=dynamic_cast<BDressingCosModFactor*>(BDCMF);
     this->field->BSDF->fm=parameters.SDparam[3];
-      this->field->BSDF->wrf_amp=parameters.SDparam[4];
+    this->field->BSDF->wrf_amp=parameters.SDparam[4];
+    this->field->BSDF->wrf=parameters.SDparam[1];
+    this->field->BSDF->t1=parameters.SDparam[5];
+    this->field->BSDF->t2=parameters.SDparam[6];
+    this->field->BSDF->nmod=parameters.SDparam[7];
+    this->field->BSDF->findFM();
     //std::cout<<"Spin Dressing active with Cosine Frequency Modulation"<<endl;
     
   }
@@ -1636,7 +1812,10 @@ if (parameters.Interpparam[0]){
     //std::string tempb1path ("/data1/cmswank/spin-sim-xliu/BField/B1Pulse.dat");
     //its already hard codded!. 
     this->field->BSDF->interpnoise= new cmsInterp(tempinterpstart,tempinterpstep,tempinterpNum,(int)parameters.Pulseparam[7],(int)cutoff,(int)highpass);
+    //std::cout<<this->field->BSDF->interpnoise->rnd_seed<<std::endl;
+    //std::cout<<"HI"<<std::flush;
     this->field->BSDF->interpnoise->whitenoiseGen((double)parameters.Pulseparam[8]);
+    //std::cout<<"made it?"<<std::flush;
     //this->field->BSDF->b1Pulse = new cmsB1PulseInterp(tempb1interpstart,tempb1interpstep,tempb1interpNum,(int)filenum);
     //double temptesttime[1]={0.25};
     //std::cout<<"wtf? again? "<<this->field->BSDF->b1Pulse->interp1D(temptesttime)<<"\n";;

@@ -17,11 +17,11 @@ DBGFLAG       = -g
 OPTFLAG       = -O2
 CXX           = g++
 CXXFLAGSDBG   = -g -Wall -fPIC -I$(ROOTINC) $(INCDIRS)
-CXXFLAGSOPT   = -O2 -Wall -fPIC -fpermissive -I$(ROOTINC) $(INCDIRS)
+CXXFLAGSOPT   = -O2 -Wall -fPIC -fpermissive -std=c++17 -I$(ROOTINC) $(INCDIRS)
 LD            = g++
 LDFLAGS       := $(shell $(ROOTCONFIG) --ldflags )
 SOFLAGS       = -Wl,-soname,libEvent.so -shared 
-LIBS          = $(ROOTLIBS) $(SYSLIBS) -lpython2.7 -lboost_system -lfftw3
+LIBS          = $(ROOTLIBS) $(SYSLIBS)  -lfftw3 #-lpython2.7 -lboost_system
 GLIBS         = $(ROOTLIBS) $(ROOTGLIBS) $(SYSLIBS) 
 
 CXXFLAGS      = $(CXXFLAGSOPT)

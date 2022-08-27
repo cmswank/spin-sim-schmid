@@ -190,57 +190,63 @@ double BDressingFactor::getFactor(BFieldVars &vars) {
       //std::cout<<" "<<this->b1Pulse->interp1D(interptime)<<" ";
       
       //return Bscale*(std::real(rscale*std::exp(i*w_n*t)*std::pow(std::cosh(beta*t),expo)+1/rscale*std::exp(i*w_He*t)*std::pow(std::cosh(beta*t),expo)+interpnoise->interp1D(interptime)));
-      
+      //input params. 
+      //[0]=pulse 6 here, [1]=width and or filenum, [2]=Bscale, [3]=T_p, [4]= T_crop; [5]=T_pause, [6]= tempb1interpNum. [7]= rng seed, [8]= white noise std. 
+      //[9]=tempinterpstart (noise) [10]= tempinterpstep (noise), [11]= tempinterpNum, [12]=b1interp step, [13]= b1interp stop, 
       if(time<T_p){
-        //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
+         //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
          //std::cout<<time<<std::endl;
-        return b1Pulse->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+         //std::cout<<Bscale*interpnoise->interp1D(interptime)<<std::endl;
+        return cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
       }
       else
         return 0.0;//+interpnoise->interp1D(interptime));
       }
 
-      else if (pulse == 7) {
+     /* else if (pulse == 7) {
     //Double Pulses! Attempting to use robust dressing to lock phases together in B1 pulse. 
       ///putting it so after the pulse it stops dressing.
 
     double time = vars.t;
     double interptime[1]={time};
-      /*double mu  = 5;
-      double beta = width*PI/mu;
-      double B0 = 3e-6;
-      double w_mean = B0*(1.83247185e8 + 2.037894730e8)/2;
-      double w_n = B0*1.83247185e8;
-      double w_He = B0*2.037894730e8;
-      std::complex<double> expo(-1,-mu);
-      std::complex<double> i(0,1);
-      double t = time - T_p/2.0;
-      */
 
-     // double tempdoublein;
-     // std::cout<<"Please enter time double \n";
-     // std::cin>>tempdoublein;
-      //double testtest[1]={(double)tempdoublein};
-      //std::cout<<"interp class start "<<interpnoise->start[0]<<"\n";
-      //std::cout<<"interp class step "<<interpnoise->step[0]<<"\n";
-      //std::cout<<" \n"<<this->interpnoise->interpdata[10]<<"  \n";
-      //std::cout<<" "<<this->b1Pulse->interpdata[10]<<"  ";
-      //std::cout<<" "<<this->b1Pulse->interp1D(interptime)<<" ";
-      
-      //return Bscale*(std::real(rscale*std::exp(i*w_n*t)*std::pow(std::cosh(beta*t),expo)+1/rscale*std::exp(i*w_He*t)*std::pow(std::cosh(beta*t),expo)+interpnoise->interp1D(interptime)));
-      
-      
-        //std::cout<<b1Pulse->interp1D(interptime)<<std::endl;
-         
-        //if (time>0.999)
-         //std::cout<<interpnoise->interp1D(interptime)<<std::endl;
         return cos(get_phase(vars.t))+interpnoise->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
     
+        //return 0.0;//+interpnoise->interp1D(interptime));
+      }*/
+      else if (pulse == 7) {
+    // 7 is now the modlation that goes negative that can cancel brown noise. 
+        //Thanks!
+   //use as Bscale->Wamp(b) [2],// use as T-P->a [3],//use as b T_crop->n [4],
+    //double time = vars.t;
+    //double x = 2*PI*width*(vars.t-1./width*floor(width*vars.t));
+    //double interptime[1]={time};
+    //double a =;
+    //double b =;
+    //double n =;
+        double time = vars.t;
+        double interptime[1]={time};
+    
+
+     //double beta=1.681; 
+
+     
+     //3845.309408, 6283.18530718
+
+        ///I don't know about this. I think I will omit noise for now. 
+        //BModCRFunction(x,a,b,n)
+        //std::cout<<BModCRFunction(x,T_p,Bscale,T_crop)<<"\n";
+        //double fun=BModCRFunction(x,T_p,Bscale,T_crop);
+        //return cos(width*vars.t*0.5-PI*0.25)>0? fun*cos(get_phase(vars.t))+interpnoise->interp1D(interptime):-fun*cos(get_phase(vars.t))+interpnoise->interp1D(interptime);//+cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);//Bscale*(b1Pulse->interp1D(interptime))+interpnoise->interp1D(interptime));
+        //std::cout<<Bscale*interpnoise->interp1D(interptime)<<std::endl;
+        //std::cout<<cos(get_phase(vars.t))<<std::endl;
+      return cos(get_phase(vars.t))+Bscale*interpnoise->interp1D(interptime);
         //return 0.0;//+interpnoise->interp1D(interptime));
       }
 
     else
-      return cos(get_phase(vars.t));
+      //std::cout<<"factor1 "<<vars.t<<"  "<<cos(get_phase(vars.t))<<std::flush<<std::endl;
+    return cos(get_phase(vars.t));
 }
 
 /**
@@ -251,17 +257,66 @@ double BDressingFactor::get_phase(double time) {
 	return time*this->wrf + this->phi;
 }
 
-/**
- * Implementation of get_phase
- */
-double BDressingCosModFactor::get_phase(double time) {
-   double phase = wrf*time + phi;
-    double wfm = 2*PI*fm;
-  	phase += wrf_amp/wfm * sin(wfm * time);
-	
-	return phase;
+
+
+// 
+//** this is so BDressingCosModFactor can be Floquet friendly. 
+
+int BDressingCosModFactor::findFM() {
+// easier to set wrf_amp than fm. no solving needed for wrf_amp!
+//double phie = (c * wfm * std::log(std::exp(0.2e1 * k * PI / wfm) + std::exp(k * t1)) - c * wfm * std::log(std::exp(0.2e1 * k * PI / wfm) + std::exp(k * t2)) + std::log(0.1e1 + std::exp(k * t2)) * c * wfm - std::log(0.1e1 + std::exp(k * t1)) * c * wfm + 0.2e1 * PI * b * k) / wfm / k;
+double b=wrf; 
+double k = 100.; 
+this->wrf_amp =  k * (nmod * 0.2e1 * 0.3141592654e1 * fm - b) / (log(exp(k) + exp(k * fm * t1)) - log(exp(k) + exp(k * fm * t2)) - log(0.1e1 + exp(k * fm * t1)) + log(0.1e1 + exp(k * fm * t2)));
+std::cout<<"frequency modulation amplitude "<<wrf_amp<<std::endl;
+std::cout<<"base frequency "<<b<<std::endl;
+return 1;
 }
 
+/**
+ * Implementation of get_phase
+ */// This is now constant power modulation
+double BDressingCosModFactor::get_phase(double time) {
+   //double phase = wrf*time + phi;
+    double b=wrf; 
+    double k = 100.;   
+    //this->wrf_amp =  k * (6 * 0.2e1 * 0.3141592654e1 * fm - b) / (log(exp(k) + exp(k * fm * t1)) - log(exp(k) + exp(k * fm * t2)) - log(0.1e1 + exp(k * fm * t1)) + log(0.1e1 + exp(k * fm * t2)));
+    //std::cout<<b<<"  "<<fm<<"  "<<wrf_amp<<std::endl;
+    double t=time;
+    //std::cout<<"b "<<b<<std::endl;
+    double wfm = 2.*PI*fm;
+    double tfloor;
+    double tmod=2.*PI/wfm*std::modf(t/(2.*PI/wfm),&tfloor);
+    double c=wrf_amp;
+    //std::cout<<"why nan? "<<std::exp(fm*t1)<<std::endl;
+    //2.*PI*1600.; //amplitude of oscillation
+    //double b=wrf;//2.*PI*800.; //base dressing oscillation (minimum)
+    //double k = 100*fm;
+  	double phitm = (b * k * fm * tmod + c * log(exp(tmod * k * fm) + exp(k * fm * t1)) - c * log(exp(tmod * k * fm) + exp(k * fm * t2)) - c * log(0.1e1 + exp(k * fm * t1)) + c * log(0.1e1 + exp(k * fm * t2))) / k / fm;
+    double phie =    (c * log(exp(k) + exp(k * fm * t1)) - c * log(exp(k) + exp(k * fm * t2)) - c * log(0.1e1 + exp(k * fm * t1)) + c * log(0.1e1 + exp(k * fm * t2)) + b * k) / k / fm;
+    double phi=  tfloor*phie+phitm;
+
+    //phase += wrf_amp/wfm * sin(wfm * time);
+	
+	return phi;
+}
+
+/// Consant power modulations
+double BDressingCosModFactor::getFactor(BFieldVars &vars) {
+  double t=vars.t;
+  //double wfm = 2.*PI*fm;
+  double tfloor;
+  double tmod=1./fm*std::modf(t*fm,&tfloor);
+  double c=wrf_amp;//2.*PI*1600.; //amplitude of oscillation
+  double b=wrf;//2.*PI*800.; //base dressing oscillation (minimum)
+  double k = 100.;
+  double omega= b+c/(1.+std::exp(-k*fm*(tmod-t1)))-c/(1.+std::exp(-k*fm*(tmod-t2)));
+  //std::cout<<"c "<<c<<" b "<<b<<" omega "<<omega<<std::endl;
+  double scale = std::sqrt(b/omega);
+  double Bfact=BDressingFactor::getFactor(vars);
+  //std::cout<<"Scale "<<scale<<" cos(phase) "<<Bfact<<" total "<<scale*Bfact<<std::flush<<std::endl;
+  return scale * Bfact;
+}
 
 /**
  * Implementation of get_phase
@@ -342,7 +397,7 @@ double BDressingCosModFactor::getFactor(BFieldVars &vars) {
  */
 double BDressingCosBModFactor::getFactor(BFieldVars &vars) {
   double wfm = 2*PI*fm;
-  double scale = 1. + amp * cos(wfm * vars.t);
+  double scale = 1. + amp *0.5*(1+ cos(wfm * vars.t));
   return scale * BDressingFactor::getFactor(vars);
 }
 
@@ -376,6 +431,8 @@ double BDressingPulsedFreqModFactor::get_phase(double time) {
   //dw2 is phase of critrical modulation. phi is phase of dressing?
   //wrf is the usual omega rf. 
   //old robust dressing doesn't really work 
+  ///this is the prostitute phase fuction, I use it for whatever crazy idea I have had most recently. 
+  //beta approx 1.681
   return dw1/fm*(1.0-cos(fm*time+dw2))+wrf*time+phi; 
   ///return wrf*time+phi;
 

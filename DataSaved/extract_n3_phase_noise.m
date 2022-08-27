@@ -24,12 +24,14 @@
 %run 46000 100-1025 bandpass. 10 seconds 10001 bins
 %run 48000 200-1025 bandpass. 10 seconds 10001 bins
 %run 50000 40-1025 bandstop. 
-startnum=80000;
 
+%now we changed run 8200 is power supply noise robust modulated dressing.
+%
+startnum=1082;
 Bin = 1001;
 
 Event = 2000;
-runs=10;
+runs=1;
 Sxn=zeros(runs,Bin);
 %Sxmean=zeros(Bin,1);
 Syn=zeros(runs,Bin);
@@ -41,9 +43,9 @@ Sz3=zeros(runs,Bin);
 %phaseData=zeros(runs,Bin);
 for i = 1:runs
   
-    runnum=startnum+2*(i-1);
+    runnum=startnum+(i-1);
 
-datafile = strcat('/data1/cmswank/spin-sim-xliu/ExtractData/SpinDressingCrossTerm_',num2str(runnum),'.dat');
+%datafile = strcat('/data1/cmswank/spin-sim-xliu/ExtractData/SpinDressingCrossTerm_',num2str(runnum),'.dat');
 
 % import data
     fileID = fopen(datafile);
@@ -77,7 +79,7 @@ datafile = strcat('/data1/cmswank/spin-sim-xliu/ExtractData/SpinDressingCrossTer
    %%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%% Helium
    %%%%%%%%%%%%%%%%%%
-   runnum=startnum+2*i-1;  %different from above 2*(i-1). 
+   runnum=startnum+runs+i-1;  %different from above 2*(i-1). 
 
 datafile = strcat('/data1/cmswank/spin-sim-xliu/ExtractData/SpinDressingCrossTerm_',num2str(runnum),'.dat');
 

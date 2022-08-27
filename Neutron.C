@@ -35,7 +35,7 @@ void Neutron::defaultConstructor() {
   last.valid = 0;
   last.nextTstep = -1.;
 
-  MIN_T_STEP = 1e-12;
+  MIN_T_STEP = 1e-16;
 }
 
 Neutron::Neutron() : gamma(NEUTRON_GAMMA) {
@@ -504,8 +504,8 @@ Double_t Neutron::PrecessLoop(Double_t time) {
       steps++;
     }
 
-    if (i > 100) {
-      cout << "Precession change size > 100";
+    if (i > 1000) {
+      cout << "Precession change size > 1000";
       cout << " t_step = " << t_step;
       cout << " last.nextTstep = " << last.nextTstep << endl;
       return -1;
@@ -810,8 +810,10 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
 
 
   Int_t use_edm = (edm != 0)? 1 : 0;
-  static Double_t gamma_edm = GetGammaE();
-  
+  Double_t gamma_edm = GetGammaE();
+  //std::cout<<gamma<<" ";
+  //std::cout<<gamma_edm<<" ";
+
   Double_t temp;
 
   Double_t tempSpin[3], tempB0[3], tempPos[3], tempVel[3], tempErr[3], tempNewSpin[3];
@@ -832,13 +834,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k1[0] *= time * gamma;
   k1[1] *= time * gamma;
   k1[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k1[0] += add_edm[0] * time * gamma_edm;
     k1[1] += add_edm[1] * time * gamma_edm;
     k1[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[0] = Vector::Norm(tempB0);
 
@@ -865,13 +867,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k2[0] *= time * gamma;
   k2[1] *= time * gamma;
   k2[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k2[0] += add_edm[0] * time * gamma_edm;
     k2[1] += add_edm[1] * time * gamma_edm;
     k2[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[1] = Vector::Norm(tempB0);
 
@@ -898,13 +900,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k3[0] *= time * gamma;
   k3[1] *= time * gamma;
   k3[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k3[0] += add_edm[0] * time * gamma_edm;
     k3[1] += add_edm[1] * time * gamma_edm;
     k3[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[2] = Vector::Norm(tempB0);
   //if (Bmag[2]>1E-4)
@@ -932,13 +934,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k4[0] *= time * gamma;
   k4[1] *= time * gamma;
   k4[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k4[0] += add_edm[0] * time * gamma_edm;
     k4[1] += add_edm[1] * time * gamma_edm;
     k4[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[3] = Vector::Norm(tempB0);
 
@@ -965,13 +967,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k5[0] *= time * gamma;
   k5[1] *= time * gamma;
   k5[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k5[0] += add_edm[0] * time * gamma_edm;
     k5[1] += add_edm[1] * time * gamma_edm;
     k5[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[4] = Vector::Norm(tempB0);
 
@@ -998,13 +1000,13 @@ Double_t Neutron::RungeKutta5(Double_t time, Double_t *newSpin) {
   k6[0] *= time * gamma;
   k6[1] *= time * gamma;
   k6[2] *= time * gamma;
-  if (use_edm) {
+  //if (use_edm) {
     Efield = field->GetE();
     Vector::CrossProduct(current.spin, Efield, add_edm);
     k6[0] += add_edm[0] * time * gamma_edm;
     k6[1] += add_edm[1] * time * gamma_edm;
     k6[2] += add_edm[2] * time * gamma_edm;
-  }
+  //}
 
   Bmag[5] = Vector::Norm(tempB0);
 

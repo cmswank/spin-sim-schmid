@@ -44,7 +44,10 @@ class BDressingFactor : public BFactor
   double T_crop;
   double T_pause;
   double rscale;
+  double t1;
+  double t2;
   int pulse;
+  double nmod;
   
   cmsInterp* interpnoise;
   cmsB1PulseInterp* b1Pulse;
@@ -52,16 +55,20 @@ class BDressingFactor : public BFactor
   virtual double getFactor(BFieldVars &vars);
  //protected:
   virtual double get_phase(double time);
+  virtual int findFM(){return 1;};
 };
 
 class BDressingCosModFactor : public BDressingFactor
 {
  public:
  BDressingCosModFactor() : BDressingFactor() {};
-
+  
+  virtual int findFM();
+  
   protected:
   virtual double get_phase(double time);
-  //virtual double getFactor(BFieldVars &vars);
+  virtual double getFactor(BFieldVars &vars);
+  
 };
 
 class BDressingCosBModFactor : public BDressingFactor

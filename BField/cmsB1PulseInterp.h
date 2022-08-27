@@ -54,7 +54,7 @@ public:
 	//if its too slow I guess it could be made into a linear with ease. 
 	double interp1D(double* pos);
 	//double interp3D(double* pos);
-
+	~cmsB1PulseInterp() { delete[] interpdata;}
 
 
 

@@ -42,6 +42,7 @@ public:
 	//this defines the data in flattened C type array, (last column moves fastest) and the step size for all arrays. 
 	cmsInterp(double star[1],double ste[1], int N[3], int flat_seed,int freq_cut,int hpass);
     void whitenoiseGen(double nmag);
+    void whitenoiseReload(double nmag,int rnd);
     double testtest;
 	double *interpdata;
     double step[1];
@@ -59,7 +60,8 @@ public:
 	//if its too slow I guess it could be made into a linear with ease. 
 	double interp1D(double* pos);
 	//double interp3D(double* pos);
-
+	
+	~cmsInterp() { delete[] interpdata; }
 
 
 

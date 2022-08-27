@@ -15,6 +15,12 @@ double phaseCriticalMod(double x, double a, double n){
 	return -sqrt(PI/n)/(2*a*2*PI)*( a*a*(erf(sqrt(n)*(x-3*PI/2))+ erf(3*PI*sqrt(n)/2) ) + erf(0.5*sqrt(n)*(PI-2*x)) - erf(PI*sqrt(n)/2));
 }
 
+double BModCRFunction(double x, double a, double b, double n){
+	using namespace std;
+	//double fun = 
+	//std::cout<<x<<"  "<<a<<"  "<<b<<"  "<<n<<"  "<<fun<<"\n";
+	return 1-exp(-a*n*pow(x-PI*0.5,2))+b*exp(-n*pow(x-PI*1.5,2));
+	}
 
 
 #endif

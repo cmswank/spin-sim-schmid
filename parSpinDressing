@@ -48,7 +48,7 @@ UniformG = 0, 0, 0, 0, 0, 0, 0, 0, 0;
 //LINES simType-50, SpinDressing-50,Bzadd-51
 
 simType = 1;
-SpinDressing= 6 , 6283.18530718, 0, 	1 , 2542.3354, 0.726, 51, 1.570796327;
+SpinDressing= 1 , 6283.18530718, 0, 	1 , 2542.3354, 0.726, 51, 1.570796327;
 BzAdd = "4.0596741e-05";
 
 //simType = 0;

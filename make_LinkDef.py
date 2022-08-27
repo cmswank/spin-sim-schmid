@@ -9,17 +9,20 @@ import time
 def strip_comments(lines):
     match = re.compile('(.*)((\/\/|\/\*)(.*))').match
     lines = iter(lines)
-    line = lines.next()
+    line = next(lines)
     while line:
         line = line.strip()
         m = match(line)
         if m is None:
             yield line
-            line = lines.next()
+            try:
+                line = next(lines)
+            except StopIteration:
+                line = None
         elif m.group(3) in ('//', None):
             yield m.group(1).strip()
             try:
-                line = lines.next()
+                line = next(lines)
             except StopIteration:
                 line = None
         else:
@@ -34,7 +37,7 @@ def strip_comments(lines):
                     if ret:
                         yield ret.strip()
                         ret = None
-                    temp += lines.next()
+                    temp += next(lines)
                 else:
                     line = temp[i+2:]
                     break
@@ -47,18 +50,18 @@ def find_classes(filename, verbose=False):
         m = class_search(line)
         if m is not None:
             if verbose:
-                print "possible candidate: %s" % (m.group(0),)
+                print("possible candidate: %s" % (m.group(0),))
             # make sure definition of class
             # (must continue with either '{' or ':'
             while m.group(3) is None:
-                line += f.next().strip()
+                line += next(f).strip()
                 m = class_search(line)
             if m.group(3) not in ('{', ':'):
                 args = (m.group(3), m.group(2), i, filename)
-                print "W: invalid char %s for possible class %s at line %d in %s" % args
+                print("W: invalid char %s for possible class %s at line %d in %s" % args)
                 continue
             if verbose:
-                print "FOUND: %s" % (m.group(2),)
+                print("FOUND: %s" % (m.group(2),))
             classes.append(m.group(2))
     return classes
 

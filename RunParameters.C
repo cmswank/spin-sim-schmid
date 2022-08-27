@@ -334,7 +334,7 @@ int RunParameters::assignment(std::string *expression, Int_t args, Char_t *var) 
   //if (check_assignment_length(expression, args) < 0)
    // return 0;
 	
- var=expression->c_str();
+ var=(Char_t*)expression->c_str();
  std::cout<<var[0]<<"\n";
   //for (int i=0; i<args; i++) {
 //	  std::cout<<param->getVarVector()[i]<<"\n";

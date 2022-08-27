@@ -133,7 +133,7 @@ int main(int argc, char *argv[] )
 		VVX=VX[j];
 		VVY=VY[j];
 		VVZ=VZ[j];
-
+		//cout<<"Sx is "<<SSX<<std::endl;
 		//Export double
 		myfile.write(reinterpret_cast <const char*> (&SSX),sizeof(double)); 
 		myfile.write(reinterpret_cast <const char*> (&SSY),sizeof(double)); 		

@@ -1,10 +1,10 @@
 thpts=200; %resolution
 Temp=.45;%[0.1:0.1:0.6];%TT(1);%.3;%ones(100,1)*TT;%linspace(0.1,.001,.);%0.3;    %Temperature of he-3 superfluid he-4 solution (low X phonon dominated);
 
-Lx=.4;%7.6;%.2;%10.2;%10.2; !!Changed to SI!!!     %length in cm of dimension to be correlated. 
+Lx=.102;%7.6;%.2;%10.2;%10.2; !!Changed to SI!!!     %length in cm of dimension to be correlated. 
 
-Grad=1E-4/100;%1E-7;%1E-5/100;  %first number is G/cm, divide by 100 to make it T/m
-Efield=7.5E6; %V/m
+Grad=1E-6/100;%1E-7;%1E-5/100;  %first number is G/cm, divide by 100 to make it T/m
+Efield=7.5E8; %V/m
 
 %This part is cgs...
 m=5.007*10^(-24)*2.4;  %effective he-3 mass cgs
